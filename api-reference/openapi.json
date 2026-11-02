@@ -1463,7 +1463,7 @@
       "post": {
         "operationId": "createBoost",
         "summary": "Create Boost",
-        "description": "Place a Boost (`trade` key, live keys only) on the window open now: your stake buys the plain bet plus a ride that pays more the further the price runs your way — the website's Boost, or with `kind: multiplier` its leverage slider. Priced by the server exactly as on the website, with the same limits ($100 staked per window, $500 at risk per day) and the same cutoff (none in a window's last minute). The stake is paid from your cash when the order is placed and counts in your key's daily limit. `client_order_id` is required and idempotent: resending the same id with the same body returns the order already placed. After a timeout or `503 EXCHANGE_UNAVAILABLE`, look it up by `client_order_id` (GET /portfolio/boosts) before sending it again.",
+        "description": "Place a Boost (`trade` key, live keys only) on the window open now: your stake buys the plain bet plus a ride that pays more the further the price runs your way — the website's Boost, or with `kind: multiplier` its leverage slider. Priced by the server exactly as on the website, with the same stake limit ($1 to $100 per order) and the same cutoff (none in a window's last minute). The stake is paid from your cash when the order is placed and counts in your key's daily limit. `client_order_id` is required and idempotent: resending the same id with the same body returns the order already placed. After a timeout or `503 EXCHANGE_UNAVAILABLE`, look it up by `client_order_id` (GET /portfolio/boosts) before sending it again.",
         "security": [
           {
             "apiKey": []
