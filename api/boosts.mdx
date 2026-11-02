@@ -88,7 +88,7 @@ The rules are the same as for [orders](/api/orders#retrying-safely-with-client_o
 
 When a request times out or answers `503 EXCHANGE_UNAVAILABLE`, resend it with the **same** `client_order_id`, or look it up with [`GET /portfolio/boosts?client_order_id=…`](/api-reference/list-boosts). Never retry with a new id: if the first request went through, a new id places a second order.
 
-A `failed` order keeps its id. Nothing moved, so to try again, send a new `client_order_id`.
+A `failed` order gives its id back: nothing moved, so to try again, send the same order with the same `client_order_id`.
 
 Ids are 1 to 64 characters (letters, digits, `.` `_` `:` `-`) and unique per account. Boost orders and book orders keep separate ids, so the same id can be used once on each.
 
@@ -132,6 +132,7 @@ The order is sold back for its current `sell_proceeds`, paid to your cash, and t
 - `sell_proceeds` is **below** `value`, so buying and selling straight back costs money.
 - `expected_proceeds` is optional. With it, the sale is refused (`400 ORDER_REJECTED`) if it would pay more than 10% less.
 - Only an `open` order can be sold, and not in the window's last minute.
+- A key limited to some series can only sell Boost orders on those, including ones placed on the website or in the app.
 - A sale has no `client_order_id`. If it answers `503 EXCHANGE_UNAVAILABLE`, get the order before trying again: `selling` or `sold` means it went through.
 
 ## At the close
