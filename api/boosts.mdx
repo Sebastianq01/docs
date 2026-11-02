@@ -1,0 +1,179 @@
+---
+title: "Boost orders"
+description: "Place, track and sell Boost and multiplier orders with a trade key: one order that pays more the further the price closes your way."
+---
+
+A Boost order is one order on the window that's open now. It pays more the further the price closes your way. It's the same order the website places: the same server prices it, and the same limits and settlement apply. Placing and selling need an API key with the **Trade** permission; reading needs **Read**. See [Authentication](/api/authentication).
+
+<Warning>
+Boost orders are **real money**. The stake is paid from your account's cash the moment the order is placed. Orders placed through the API never use trade credit.
+</Warning>
+
+## Two kinds
+
+| `kind` | What you get |
+|---|---|
+| `boost` (default) | The regular Up / Down contract plus one **ride** from the price at the moment you buy. Part of the stake buys the regular contract, enough that a right call pays your whole stake back. The rest pays a fixed amount for every $1 the asset closes past the price when you bought, up to a cap of **100× your stake**. If the regular contract alone pays more than that, its payout is the cap. |
+| `multiplier` | The website's Multiplier at the setting you send in `multiplier`, `"1"` to `"10"`. How it pays is on the [Multiplier](/interval/multiplier#how-it-pays) page. |
+
+For example, a $10 Boost on Up when Up costs 65¢: $6.50 buys 10 contracts, so any close at or above the price to beat pays at least $10. The other $3.50 is the ride. It adds to the payout for every $1 the asset closes above the price at the moment you bought.
+
+On a `boost` order, `multiplier` in the response is the cap divided by the stake (`max_payout` ÷ `stake`), not a setting you chose.
+
+## Where and when
+
+- **Which markets.** Boost is offered on the markets where the Multiplier is offered to your account. Anywhere else, an order answers `403 BOOST_UNAVAILABLE`.
+- **The current window only.** `market_ticker` must name the window that's open now; find it with [`GET /markets?status=open`](/api-reference/list-markets). Any other window answers `400 MARKET_NOT_OPEN`.
+- **Not in the last minute**, and not while the Multiplier is [paused](/interval/multiplier) (around the stock market's open and close, US data releases, and so on). Both answer `400 MARKET_NOT_OPEN`.
+- **Live keys only.** There is no practice Boost: a test key's order answers `403 BOOST_UNAVAILABLE`, and its list is always empty.
+- **Check `mode`.** `live` is real money. `shadow` means the market isn't open to real money for your account yet: the order is recorded, but no money moved.
+
+## Place a Boost
+
+```bash
+curl -X POST https://api.updown.fast/trade-api/v1/portfolio/boosts \
+  -H "Authorization: Bearer $UPDOWN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "market_ticker": "btc-15m-261102-1600-1615",
+    "outcome": "up",
+    "stake": "10",
+    "kind": "boost",
+    "expected_price": "0.65",
+    "client_order_id": "boost-000123"
+  }'
+```
+
+```json 201 Created
+{
+  "boost": {
+    "boost_id": "6f1c2a8e-3b4d-4e5f-9a1b-2c3d4e5f6a7b",
+    "client_order_id": "boost-000123",
+    "market_ticker": "btc-15m-261102-1600-1615",
+    "outcome": "up",
+    "kind": "boost",
+    "mode": "live",
+    "status": "open",
+    "stake": "10.00",
+    "multiplier": "100.00",
+    "max_payout": "1000.00",
+    "price_to_beat": "110350.25",
+    "value": "9.96",
+    "sell_proceeds": "9.41",
+    "created_ts_ms": 1793635262114,
+    "close_ts_ms": 1793636100000
+  }
+}
+```
+
+| Field | |
+|---|---|
+| `market_ticker` | The window that's open now. |
+| `outcome` | `up` or `down`. |
+| `stake` | Dollars as a string, up to two decimals. **$1 to $100**, and no more than your key's max order. |
+| `kind` | `boost` (default) or `multiplier`. |
+| `multiplier` | `kind: "multiplier"` only, and required there: `"1"` to `"10"`, up to two decimals. |
+| `expected_max_payout` | Optional. The order is refused (`400 ORDER_REJECTED`) if its max payout comes out more than 10% below this, because the price moved. |
+| `expected_price` | Optional, `kind: "boost"` only. The contract price you priced on. The order is refused (`400 ORDER_REJECTED`) if the part of your stake that rides comes out more than 10% smaller than at this price. |
+| `client_order_id` | **Required.** Your id for the order; see below. |
+
+The response is the order after it's placed, usually `open`. It reads `pending` while the stake is still being taken.
+
+## Retrying safely with `client_order_id`
+
+The rules are the same as for [orders](/api/orders#retrying-safely-with-client_order_id):
+
+- **Same id, same order** → you get back the order already placed. Never a second one.
+- **Same id, different order** → `409 IDEMPOTENCY_CONFLICT`.
+
+When a request times out or answers `503 EXCHANGE_UNAVAILABLE`, resend it with the **same** `client_order_id`, or look it up with [`GET /portfolio/boosts?client_order_id=…`](/api-reference/list-boosts). Never retry with a new id: if the first request went through, a new id places a second order.
+
+A `failed` order gives its id back: nothing moved, so to try again, send the same order with the same `client_order_id`.
+
+Ids are 1 to 64 characters (letters, digits, `.` `_` `:` `-`) and unique per account. Boost orders and book orders keep separate ids, so the same id can be used once on each.
+
+## Order status
+
+| `status` | Meaning |
+|---|---|
+| `pending` | The stake is being taken. |
+| `open` | Live until the window closes. It can be sold early. |
+| `selling` | Your sale is being paid. |
+| `sold` | Sold back early. `payout` is what the sale paid. |
+| `settling` | The window closed and the payout is being sent. |
+| `settled` | Paid out, or lost. `payout` is what it paid (`0.00` on a loss). |
+| `void` | Refunded: the window's result couldn't be read. |
+| `failed` | The stake was never taken. Nothing happened. |
+
+## Track your orders
+
+| Endpoint | Returns |
+|---|---|
+| [`GET /portfolio/boosts`](/api-reference/list-boosts) | Your Boost and multiplier orders, newest first, including ones placed on the website or in the app (those have no `client_order_id`). Filter by `market_ticker`, `client_order_id` or `status`; `limit` 1 to 100, default 50. |
+| [`GET /portfolio/boosts/{boost_id}`](/api-reference/get-boost) | One order. |
+
+While an order is open, `value` is what it's worth at the current price and `sell_proceeds` is what selling it right now pays. Each is left out when it can't be worked out. After the close, `close_price` is the settlement price (or the price it was sold at) and `payout` is what it paid.
+
+There's no websocket channel for Boost orders yet, so poll these endpoints. Boost orders aren't part of [`GET /portfolio/orders`](/api-reference/list-orders), [`/positions`](/api-reference/get-positions) or [`/fills`](/api-reference/get-fills), which cover the order book.
+
+`credit_used` and `paid` show only on orders placed on the website or in the app with trade credit. There, `paid` is what reached the wallet: the payout less the credit.
+
+## Sell early
+
+```bash
+curl -X POST https://api.updown.fast/trade-api/v1/portfolio/boosts/6f1c2a8e-3b4d-4e5f-9a1b-2c3d4e5f6a7b/sell \
+  -H "Authorization: Bearer $UPDOWN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "expected_proceeds": "9.41" }'
+```
+
+The order is sold back for its current `sell_proceeds`, paid to your cash, and the response shows it `sold`.
+
+- `sell_proceeds` is **below** `value`, so buying and selling straight back costs money.
+- `expected_proceeds` is optional. With it, the sale is refused (`400 ORDER_REJECTED`) if it would pay more than 10% less.
+- Only an `open` order can be sold, and not in the window's last minute.
+- A key limited to some series can only sell Boost orders on those, including ones placed on the website or in the app.
+- A sale has no `client_order_id`. If it answers `503 EXCHANGE_UNAVAILABLE`, get the order before trying again: `selling` or `sold` means it went through.
+
+## At the close
+
+Open orders settle automatically on the window's result: `settling`, then `settled`, with the payout sent to your cash. If the result still can't be read 6 hours after the close, the stake is refunded and the order reads `void`.
+
+## Limits
+
+The tightest of these wins:
+
+1. **Your key's limits.** The key's max order applies to the stake: trade keys start at **$20 per order**, so raise the key's max order to stake more. The key's daily limit counts its Boost stakes of the last 24 hours alongside its book fills and resting buys; [`GET /account`](/api-reference/get-account) shows them together as `daily_used_usd`. A key limited to some series can only place Boost orders on those.
+2. **The stake**, the same as on the website: **$1 to $100** per order. There's no limit on how many orders you place on a window or in a day, beyond the cash they need and your key's limits.
+3. **The order budget.** Each new Boost order costs one unit of your key's order budget (10 a second, bursts of 20), like a book order. Sales don't. See [Rate limits](/api/rate-limits).
+
+Going over a limit answers `400 LIMIT_EXCEEDED`, with a message that says which.
+
+Before your first order, the account must have accepted the current Terms of Service and **allowed trading** on its wallet (a one-time step in the app). Without them, an order answers `403 FORBIDDEN` and says which step is missing.
+
+## Errors
+
+| HTTP | `code` | Meaning |
+|---|---|---|
+| 400 | `BAD_REQUEST` | A field is missing or invalid; `message` says which. |
+| 400 | `INSUFFICIENT_BALANCE` | Not enough cash for the stake. |
+| 400 | `LIMIT_EXCEEDED` | Over a key limit, or a stake outside $1 to $100; `message` says which. |
+| 400 | `MARKET_NOT_OPEN` | Not the window that's open now, its last minute, or a Multiplier pause. |
+| 400 | `ORDER_REJECTED` | Refused for another reason, such as the price moved past your `expected_*` field or there's no fresh price; `message` says why. Nothing was placed or sold. |
+| 403 | `BOOST_UNAVAILABLE` | Boost isn't offered to this account on this market, or the key is a test key. |
+| 403 | `FORBIDDEN` | The key lacks the permission, or the account can't trade yet (Terms, allow trading). |
+| 404 | `ORDER_NOT_FOUND` | No Boost order with that id on your account. |
+| 409 | `IDEMPOTENCY_CONFLICT` | That `client_order_id` was used for a different order. |
+| 409 | `ACCOUNT_BUSY` | Another request on your account is still running. Retry in a moment with the same `client_order_id`. |
+| 429 | `RATE_LIMITED` | Too many new orders. Wait `Retry-After` seconds. |
+| 503 | `TRADING_PAUSED` | Trading is paused; `message` says why. |
+| 503 | `EXCHANGE_UNAVAILABLE` | We couldn't confirm the stake or the sale. Look the order up before trying again. |
+
+<CardGroup cols={2}>
+  <Card title="Multiplier" icon="bolt" href="/interval/multiplier">
+    How a multiplier order pays, when it's paused, and selling early.
+  </Card>
+  <Card title="Order entry" icon="arrow-right-arrow-left" href="/api/orders">
+    Limit orders on the order book, batches, and cancels.
+  </Card>
+</CardGroup>

@@ -89,6 +89,7 @@
               "api/authentication",
               "api/markets",
               "api/orders",
+              "api/boosts",
               "api/websocket",
               "api/rate-limits",
               "api/errors"
@@ -120,6 +121,15 @@
               "api-reference/get-positions",
               "api-reference/get-fills",
               "api-reference/get-balance"
+            ]
+          },
+          {
+            "group": "Boost orders",
+            "pages": [
+              "api-reference/create-boost",
+              "api-reference/list-boosts",
+              "api-reference/get-boost",
+              "api-reference/sell-boost"
             ]
           }
         ]

@@ -135,7 +135,7 @@ Winning contracts settle automatically after the window closes; the payout lands
 
 Three layers apply to every order, and the tightest wins:
 
-1. **Your key's limits** — max order, max per day, max resting orders per market, which series. Trade keys start at **$20 per order** and **$500 per day** unless you set others. [`GET /account`](/api-reference/get-account) shows them, and `daily_used_usd` shows how much of the day's limit is used. **The daily figure counts what filled in the last 24 hours plus what is resting right now** — a cancelled order never counts, so a quoter that places and pulls all day only uses the limit with real fills and live quotes.
+1. **Your key's limits** — max order, max per day, max resting orders per market, which series. Trade keys start at **$20 per order** and **$500 per day** unless you set others. [`GET /account`](/api-reference/get-account) shows them, and `daily_used_usd` shows how much of the day's limit is used. **The daily figure counts what filled in the last 24 hours plus what is resting right now**, plus the stakes of any [Boost orders](/api/boosts) the key placed in the last 24 hours. A cancelled order never counts, so a quoter that places and pulls all day only uses the limit with real fills and live quotes.
 2. **Your account's limit** — a cap on how much you can have at risk across all open windows at once.
 3. **The market's limit** — a cap on all users together in one window.
 

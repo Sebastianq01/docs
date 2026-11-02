@@ -21,6 +21,7 @@ Every error has the same body. Switch on `code`; `message` is for people and may
 | 400 | `SELF_TRADE` | Would trade against your own resting order. |
 | 400 | `ORDER_REJECTED` | Refused for another reason; `message` says why. |
 | 401 | `UNAUTHORIZED` | No API key, or one that isn't valid. See [Authentication](/api/authentication#when-a-key-is-refused). |
+| 403 | `BOOST_UNAVAILABLE` | Boost isn't offered to this account on this market, or the key is a test key. See [Boost orders](/api/boosts). |
 | 403 | `FORBIDDEN` | The key lacks the permission, or the account can't trade yet (Terms, allow trading). |
 | 404 | `ORDER_NOT_FOUND` | No order with that id on your account. |
 | 404 | `MARKET_NOT_FOUND` | No market with that ticker on the book. |
