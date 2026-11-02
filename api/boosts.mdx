@@ -13,10 +13,12 @@ Boost orders are **real money**. The stake is paid from your account's cash the 
 
 | `kind` | What you get |
 |---|---|
-| `boost` (default) | The regular Up / Down contract plus one **ride** from the price at the moment you buy. Part of the stake buys the regular contract, enough that a right call pays your whole stake back. The rest pays a fixed amount for every $1 the asset closes past the price when you bought, up to a cap of **100× your stake**. If the regular contract alone pays more than that, its payout is the cap. |
-| `multiplier` | The website's Multiplier at the setting you send in `multiplier`, `"1"` to `"10"`. How it pays is on the [Multiplier](/interval/multiplier#how-it-pays) page. |
+| `boost` (default) | The regular Up / Down contract plus one **option leg**: a call spread on Up, a put spread on Down, struck at the live price when the order is placed. Part of the stake buys the regular contract, enough that a right call pays your whole stake back. The rest buys the option leg, which pays a fixed amount for every $1 the asset closes past its strike, up to a ceiling set so the order pays at most **100× your stake**. If the regular contract alone pays more than that, its payout is the cap. |
+| `multiplier` | The earlier Multiplier, at the setting you send in `multiplier`, `"1"` to `"10"`: the regular contract plus option legs struck at and beyond the price to beat, sized so a big enough move pays up to that many times your stake. |
 
-For example, a $10 Boost on Up when Up costs 65¢: $6.50 buys 10 contracts, so any close at or above the price to beat pays at least $10. The other $3.50 is the ride. It adds to the payout for every $1 the asset closes above the price at the moment you bought.
+For example, a $10 Boost on Up when Up costs 65¢: $6.50 buys 10 contracts, so any close at or above the price to beat pays at least $10. The other $3.50 buys a call spread struck at the price when the order is placed. It adds to the payout for every $1 the asset closes above that strike.
+
+There's no order book for option legs. [`GET /markets/{ticker}/orderbook`](/api-reference/get-orderbook) shows the regular contract only, and a Boost is quoted on request (RFQ) when you place it: the contract at its current ask, the option leg priced for your order at that moment from the live price and the move expected in the time left. A sale is quoted the same way: the contract at its current bid, plus the option leg's value at that moment.
 
 On a `boost` order, `multiplier` in the response is the cap divided by the stake (`max_payout` ÷ `stake`), not a setting you chose.
 

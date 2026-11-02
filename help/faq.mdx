@@ -121,52 +121,56 @@ description: "Frequently asked questions about updown."
   </Accordion>
 </AccordionGroup>
 
-## Multiplier
+## Boost
 
 <AccordionGroup>
-  <Accordion title="What is the Multiplier?">
-    A slider on the interval ticket, from 1× to 10×, on stock and crypto interval markets. At 1× your order is a regular Up or Down contract. Above 1× it becomes a multiplier order: it pays more the further the price closes your way, up to a cap, and less on a small move. It settles on the same result as the regular contract. A market that doesn't offer it shows the regular ticket only. See [Multiplier](/interval/multiplier).
+  <Accordion title="What is Boost?">
+    A switch on the interval ticket, on 5-, 15- and 60-minute stock, crypto and Pre-IPO markets. Off, your order is a regular Up or Down contract. On, it becomes a Boost order: the regular contract, sized so a right call pays your stake back, plus an option leg struck at the live price when you place the order, so every dollar the price moves your way from there adds more, up to 100× your stake. It settles on the same result as the regular contract. A market that doesn't offer it shows the regular ticket only. See [Boost](/interval/multiplier).
   </Accordion>
 
   <Accordion title="Can I lose more than I put in?">
     No. The most you can lose is your stake.
   </Accordion>
 
-  <Accordion title="I called the direction right. Why did I lose money?">
-    A multiplier order pays by how far the price closes past the price to beat. Higher settings pay less on a small move: at 10× a close just past the price to beat returns only a small part of the stake. Before you buy, check the purple **To beat**: while the slider is above 1×, it shows your order's break-even.
+  <Accordion title="I called the direction right. Why didn't I make more?">
+    A Boost order's option leg is struck at the live price when you placed the order, not at the price to beat. If your side was already winning when you bought, a close on your side of the price to beat but short of your strike pays your stake back and nothing more: only the distance past your strike adds to it. See [How it pays](/interval/multiplier#how-it-pays).
   </Accordion>
 
-  <Accordion title="What do &quot;+$N&quot; and &quot;Win up to&quot; mean?">
-    "+$N · If above $X" (or "If below $X") shows the close at which your profit equals the setting times your stake. For example, $5 at 10× shows "+$50.00". **Win up to** is the most the order can pay, reached at the cap. It includes your stake.
+  <Accordion title="Why can't I see bids and asks for the option leg?">
+    Boost's option legs don't trade on an order book. Each one is quoted on request (RFQ) for your order when you place it, and again when you cash out, so the market's **Book** tab shows the regular contract only. See [How the option leg is quoted](/interval/multiplier#how-the-option-leg-is-quoted).
   </Accordion>
 
-  <Accordion title="Why can't I use the Multiplier right now?">
-    It closes in each window's last minute, and at some hours. A window that overlaps a paused time takes no multiplier orders. All times ET:
+  <Accordion title="What does the gold figure mean?">
+    What the option leg adds for each step the asset moves your way past your strike, for example "+$23.26 · every $100 BTC climbs". It's worked out for the amount you typed and moves with the price.
+  </Accordion>
+
+  <Accordion title="Why can't I use Boost right now?">
+    It closes in each window's last minute, and at some hours. A window that overlaps a paused time takes no Boost orders. All times ET:
 
     - **Crypto:** weekdays, around the 8:30 AM and 10:00 AM US data releases.
     - **Stocks:** weekdays 9:00–10:00 AM (the open), 3:30–4:30 PM (the close), and around the 8:30 AM data release; the 4 AM and 8 PM session starts; weekends (Friday 4 PM to Sunday 8 PM); and market holidays.
 
-    Regular Up / Down stays open: slide back to 1× to trade.
+    The Boost row also hides when a side is priced so close to $1 that almost nothing is left for the option leg. Regular Up / Down stays open: switch Boost off to trade.
   </Accordion>
 
   <Accordion title="What are the limits?">
-    $1 to $100 per order. The ticket tells you when an amount is outside that. Multiplier orders need **Allow trading**. Any trade credit is used first, and the rest of the stake leaves your cash when you place the order.
+    $1 to $100 per order. The ticket tells you when an amount is outside that. Boost orders need **Allow trading**. Any trade credit is used first, and the rest of the stake leaves your cash when you place the order.
   </Accordion>
 
-  <Accordion title="Can I sell a multiplier order early?">
-    Yes, until the window's last minute. Tap **Sell \~$X** on its row in **Live Positions**. The sell-back price is below the order's live value. The money goes to your cash straight away.
+  <Accordion title="Can I cash out a Boost order early?">
+    Yes, until the window's last minute. Tap **Cash out ~$X** on its row in **Live Positions**. The cash-out price is below the order's live value. The money goes to your cash straight away.
   </Accordion>
 
   <Accordion title="When do I get paid?">
     Automatically, shortly after the window's result is in. If the window has no result within 6 hours of the close, your stake is refunded.
   </Accordion>
 
-  <Accordion title="Is there a fee on a multiplier order?">
-    There's no separate fee line; the payouts on the ticket already reflect the price.
+  <Accordion title="Is there a fee on a Boost order?">
+    There's no trading fee on a Boost order. The option leg has a price, like any option, and the figures on the ticket already include it.
   </Accordion>
 
-  <Accordion title="Do multiplier orders count toward the Trading Tournament, the PNL board, Volume, or rewards?">
-    No. They don't count toward the Trading Tournament, the **PNL** leaderboard, your **Volume** or **Realized P&L** stats, or creator rewards. They do count in your Portfolio value.
+  <Accordion title="Do Boost orders count toward the leaderboards and my stats?">
+    Yes. A Boost order's result, what it paid less its stake, counts toward the **PNL** leaderboard and your **Realized P&L**, like any other trade. Open orders count in your Portfolio value.
   </Accordion>
 </AccordionGroup>
 
@@ -274,8 +278,8 @@ description: "Frequently asked questions about updown."
     Your P&L shows your cash result, so a loss funded by credit shows only the cash you lost.
   </Accordion>
 
-  <Accordion title="Can I use trade credit on the Multiplier or on limit orders?">
-    On the Multiplier, yes: credit is used before your cash, as on a regular buy. See [Trade credit](/portfolio/trade-credit#multiplier-orders). Resting limit orders use cash only, and so do orders placed through the Trade API.
+  <Accordion title="Can I use trade credit on Boost or on limit orders?">
+    On Boost, yes: credit is used before your cash, as on a regular buy. See [Trade credit](/portfolio/trade-credit#boost-orders). Resting limit orders use cash only, and so do orders placed through the Trade API.
   </Accordion>
 </AccordionGroup>
 

@@ -46,12 +46,12 @@ Credit is used first, then cash, on:
 
 - immediate interval buys from the ticket;
 - each pick of a [Bundle](/interval/bundles);
-- [multiplier orders](/interval/multiplier) on the website and in the app (see [Multiplier orders](#multiplier-orders) below).
+- [Boost orders](/interval/multiplier) on the website and in the app (see [Boost orders](#boost-orders) below).
 
 It's never used on:
 
 - limit orders;
-- orders placed through the [Trade API](/api/introduction), multiplier orders included.
+- orders placed through the [Trade API](/api/introduction), Boost orders included.
 
 When credit funds a buy, the "Trade executed" card reads, for example, "$3.00 credit + $2.00 cash · you keep the profit". The Bundle slip shows "Trade credit · used first", and its receipt reads "$X credit used · you keep the profit".
 
@@ -81,9 +81,9 @@ Before you sell, **Live Positions** previews the split: "Sell ≈ $X back as cre
 Your P&L counts the cash result. That applies to **Realized P&L**, the Portfolio chart, and the leaderboards. A loss funded by credit counts only the cash you lost. A win counts its profit.
 </Note>
 
-## Multiplier orders
+## Boost orders
 
-Credit is used first on a multiplier order's stake too. Under the **Buy** button the ticket shows the split, for example "Uses $3.00 credit + $2.00 cash · you keep the profit". The credit is kept per order, not pooled per window. You never lose more than your own cash part of the stake.
+Credit is used first on a Boost order's stake too. Under the **Buy** button the ticket shows the split, for example "Uses $3.00 credit + $2.00 cash · you keep the profit". The credit is kept per order, not pooled per window. You never lose more than your own cash part of the stake.
 
 | Event | What happens |
 |-------|-------------|
@@ -94,7 +94,7 @@ Credit is used first on a multiplier order's stake too. Under the **Buy** button
 | **Sold early at a profit** | Your cash part comes back plus the profit. The credit is used up. |
 | **Sold early at a loss or break-even** | What the sale brings refills your credit first, up to the credit you used, then your cash. |
 
-In **Live Positions**, a row funded partly by credit says how much ("· $2.00 credit"), and **Sell ~$X** shows what reaches your cash. The settlement notification says what happened to the credit.
+In **Live Positions**, a row funded partly by credit says how much ("· $2.00 credit"), and **Cash out ~$X** shows what reaches your cash. The settlement notification says what happened to the credit.
 
 ## Where your credit shows
 

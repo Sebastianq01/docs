@@ -24,8 +24,11 @@ The one-time approval, in a panel headed "Enable trading". It lets updown sign t
 
 ## B
 
-**Break-even**
-For a multiplier order, the closing price at which it pays back its stake. While the slider is above 1×, the market's **To beat** shows it in purple. Once the order is placed, the chart marks it as "Your break-even".
+**Boost**
+A switch on the interval **Buy** ticket, on 5-, 15- and 60-minute stock, crypto and Pre-IPO markets. A Boost order is the regular contract, sized so a right call pays your stake back, plus an option leg (a call on Up, a put on Down) struck at the live price when you place the order. The option leg pays a fixed amount for every dollar the close is past that strike, up to 100× your stake for the whole order. The most you can lose is your stake. See [Boost](/interval/multiplier).
+
+**Boost order**
+An order placed with Boost on, shown as "Boost $10.00 stake". On the chart, a gold line marks its option leg's strike ("Boost from $X").
 
 **Browse markets**
 The page listing every interval market as cards, filtered by category and interval. It opens on 15 min, at `updown.fast/trade`.
@@ -172,10 +175,10 @@ The chart view of the whole current window from its open. The default on 60-minu
 The old name for **Bundle**.
 
 **Multiplier**
-A slider on the interval **Buy** ticket, from 1× to 10×, on stock and crypto interval markets. At 1× the order is a regular Up or Down contract. Above 1× it pays more the further the price closes your way, up to a cap, and much less on a small move. The most you can lose is your stake.
+The earlier name for the feature now called [Boost](/interval/multiplier). On the [Trade API](/api/boosts), `kind: "multiplier"` still places an order at a setting from 1× to 10×.
 
 **Multiplier order**
-An order placed with the slider above 1×, shown as "2.4× multiplier · $5.00 stake".
+What a leverage order was called before Boost. Older orders show a multiple, such as "2.4× multiplier · $5.00 stake"; a Boost order shows "Boost".
 
 ## N
 
