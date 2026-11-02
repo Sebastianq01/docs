@@ -45,13 +45,13 @@ Each notification is titled "$X trade credit added".
 Credit is used first, then cash, on:
 
 - immediate interval buys from the ticket;
-- each pick of a [Bundle](/interval/bundles).
+- each pick of a [Bundle](/interval/bundles);
+- [multiplier orders](/interval/multiplier) on the website and in the app (see [Multiplier orders](#multiplier-orders) below).
 
 It's never used on:
 
 - limit orders;
-- multiplier orders, which use cash only;
-- orders placed through the [Trade API](/api/introduction).
+- orders placed through the [Trade API](/api/introduction), multiplier orders included.
 
 When credit funds a buy, the "Trade executed" card reads, for example, "$3.00 credit + $2.00 cash · you keep the profit". The Bundle slip shows "Trade credit · used first", and its receipt reads "$X credit used · you keep the profit".
 
@@ -80,6 +80,21 @@ Before you sell, **Live Positions** previews the split: "Sell ≈ $X back as cre
 <Note>
 Your P&L counts the cash result. That applies to **Realized P&L**, the Portfolio chart, and the leaderboards. A loss funded by credit counts only the cash you lost. A win counts its profit.
 </Note>
+
+## Multiplier orders
+
+Credit is used first on a multiplier order's stake too. Under the **Buy** button the ticket shows the split, for example "Uses $3.00 credit + $2.00 cash · you keep the profit". The credit is kept per order, not pooled per window. You never lose more than your own cash part of the stake.
+
+| Event | What happens |
+|-------|-------------|
+| **Pays more than the stake** | You get your cash part back plus the profit: the payout less your whole stake. The credit is used up. Example: a $10 stake with $4 of credit pays $25, so $21 reaches your cash ($6 back and $15 profit). |
+| **Pays less than the stake**, or nothing | The payout covers the credit first, and you get what's left, if anything. Example: the same order pays $7, so $3 reaches your cash. |
+| **Pays exactly the stake** | Your cash part comes back, and the credit returns to your credit balance. |
+| **Refunded** (no close price) | Your cash part comes back, and the credit returns to your credit balance. |
+| **Sold early at a profit** | Your cash part comes back plus the profit. The credit is used up. |
+| **Sold early at a loss or break-even** | What the sale brings refills your credit first, up to the credit you used, then your cash. |
+
+In **Live Positions**, a row funded partly by credit says how much ("· $2.00 credit"), and **Sell ~$X** shows what reaches your cash. The settlement notification says what happened to the credit.
 
 ## Where your credit shows
 
