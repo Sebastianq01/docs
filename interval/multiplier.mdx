@@ -247,7 +247,7 @@ Your Portfolio's open positions list multiplier orders among your interval rows,
 You can sell an open multiplier order before the window's last minute:
 
 1. Tap **Sell ~$X** on its row in **Live Positions**. The figure is the current sell-back price. There's no confirmation step, and the button reads **Selling…**.
-2. The money goes to your cash straight away, and you get a notification such as "Multiplier sold for $6.12 (+$1.12)".
+2. The money goes to your cash straight away, and you get a notification that reads, for example, "Sold for $6.12 (+$1.12)".
 
 - The sell-back price is **below the order's live value** ("Now ~$X"), so buying and selling straight back costs money.
 - **Sell** shows while there's a fresh price and the order is worth at least 1¢ to sell. It disappears in the window's last minute, the same cutoff as buying.
@@ -261,15 +261,20 @@ If a sale can't go through, you see a message such as "This order has nothing to
 
 A multiplier order settles automatically on the window's result, like any interval contract. The payout goes to your cash shortly after the window's result is in. If a result still can't be read 6 hours after the close, your stake is refunded.
 
-You get a notification in the **Trade results** category, linked to the settled window's page:
+You get a notification in the **Trade results** category, linked to the settled window's page. Its title names the market, the side and the multiple, for example "Bitcoin (BTC) · 15 min · Up at 2.4×" (a Boost order reads "… · Boosted Up"). The text under it says how the order did:
 
-| Outcome | Notification |
-|---------|--------------|
-| Paid out more than the stake | "Multiplier won $1.23" (the profit) |
-| Paid back less than the stake | "Multiplier paid $2.00" |
-| Settled worthless | "Multiplier lost $5.00" |
-| Refunded | "Multiplier refunded: $5.00" |
-| Sold early | "Multiplier sold for $6.12 (+$1.12)" |
+| Outcome | Notification text |
+|---------|-------------------|
+| Paid out more than the stake | "You won $7.40 · paid $12.40" (the profit, then what was paid) |
+| Paid back less than the stake | "You lost $3.00 · paid $2.00" |
+| Settled worthless | "You lost $5.00" |
+| Paid back exactly the stake | "Broke even · paid $5.00" |
+| Refunded | "Refunded $5.00 · no close price" |
+| Sold early | "Sold for $6.12 (+$1.12)" |
+
+If trade credit funded part of the stake, the text counts your cash result and says what happened to the credit.
+
+As a push notification on your phone, a win reads "You won $7.40" over the market and the multiple. Anything else names the market and says "Your trade settled. Tap to see how it went."
 
 The settled window's page shows the window's result, not your order's payout. Your Portfolio **Activity** has a **Buy** row for the order and one result row, each with a "×" stamp on the title:
 
@@ -295,8 +300,6 @@ See [Positions and history](/portfolio/positions-and-history).
 | Rule | What you see |
 |------|--------------|
 | **Stake** $1 to $100 per order | The button reads **Min $1** or **Max $100 per order**. If refused: "Enter between $1 and $100." |
-| **$100 per window**, per account | "Multiplier orders are limited to $100 per window — try the next one." |
-| **$500 at risk per day** (from midnight ET), counting each stake until it's paid back or sold | "Multiplier orders are limited to $500 at risk per day." |
 | **No new orders in a window's last minute** | "Multiplier orders close in a window's last minute." |
 | **Paused** at the times above | "The multiplier pauses for a short while around the market open (9–10 AM ET) and close (3:30–4:30 PM ET), the 4 AM and 8 PM ET session starts, the morning US data releases, and stocks' weekends — regular Up / Down is still open." |
 | **The payout moved** more than 10% below what the ticket showed | "The price moved — check the new payout and try again." |
