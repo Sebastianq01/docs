@@ -1,35 +1,62 @@
 ---
 title: "Boost"
-description: "Turn on Boost for a bigger payout on a bigger move: your stake back on a right call, plus more for every dollar the price moves your way after you buy. How it pays, the ticket, when it's paused, cashing out early, settlement, and limits."
+description: "Turn on Boost to pair the regular contract with an option leg struck at the live price when you buy: your stake back on a right call, plus more for every dollar the price moves your way after that. How it's built, how it pays, the ticket, when it's paused, cashing out early, settlement, and limits."
 ---
 
-**Boost** is a switch on the interval ticket. A regular interval contract pays the same $1 a contract whether the price closes one cent or a hundred dollars past the price to beat. A **Boost order** keeps that bet and adds a **ride**: every dollar the price moves your way **after you buy** adds to the payout, up to **100× your stake**.
+**Boost** is a switch on the interval ticket. A regular interval contract pays the same $1 a contract whether the price closes one cent or a hundred dollars past the price to beat. A **Boost order** pairs that contract with an **option leg** whose strike is the **live price the moment you place the order**. Every dollar the price moves your way from there adds to the payout, up to **100× your stake**.
 
 <Warning>
-A Boost order is a real-money order like any other. If the price closes on the wrong side of the price to beat, you lose your whole stake. The ride only adds money for the distance the price travels past where it was **when you bought**.
+A Boost order is a real-money order like any other. If the price closes on the wrong side of the price to beat, you can lose your whole stake. The option leg pays only for the distance the price closes past its strike, the live price when you placed the order.
 </Warning>
+
+## How it's built
+
+Your stake buys two things:
+
+| Part | What it is |
+|------|------------|
+| **The contract** | The regular Up / Down contract. Enough of your stake buys it that a right call pays your **whole stake back**. Example: $10 on Up when Up costs 65¢ puts $6.50 into 10 contracts, which pay $10 on any close at or above the price to beat. |
+| **The option leg** | The rest of your stake ($3.50 in the example) buys a **call** on Up or a **put** on Down. Its **strike** is the live price when your order is placed. At the close it pays a fixed amount for every $1 the asset finishes past the strike (above it for a call, below it for a put), up to a **ceiling**. Because it stops adding at the ceiling, it's a call spread or put spread. |
+
+The strike and the ceiling are fixed when you buy, so the most an order can pay is known up front: **100× your stake**, or what the contract alone pays if that's more.
 
 ## How it pays
 
-Your stake is split in two:
+At the close, a Boost order pays the sum of its two parts:
 
-| Part | What it does |
-|------|--------------|
-| **The bet** | Enough of your stake buys the regular contract that a right call pays your **whole stake back**. Example: $10 on Up when Up costs 65¢ puts $6.50 into the bet, which pays $10 on any close at or above the price to beat. |
-| **The ride** | The rest of the stake. It pays a fixed amount for every $1 the asset closes past the price **at the moment you bought**, up to a cap. |
+- **The contract:** your stake, if the close is on your side of the price to beat. Otherwise nothing.
+- **The option leg:** a fixed amount for every $1 the close is past your strike, up to the ceiling. Otherwise nothing.
 
-So where the price closes decides the payout:
+The strike is the price you bought at, not the price to beat, so what you get depends on which side was winning when you bought.
 
-| Where the price closes | What a Boost order pays |
-|------------------------|-------------------------|
-| **The wrong side** of the price to beat | $0. You lose your stake. |
-| **Your side**, but not past the price when you bought | Your **stake back** |
-| **Further your way** than the price when you bought | Your stake back, **plus** the ride: more for every dollar further |
-| **At or past the cap** | The most it can pay: **100× your stake**, or what the regular contract alone pays if that's more |
+**Bought while your side was winning.** Your strike is already past the price to beat. You're in profit from the first cent the price closes past where you bought.
+
+| Where the price closes | What the order pays |
+|------------------------|---------------------|
+| On the wrong side of the price to beat | $0. You lose your stake. |
+| On your side, but not past your strike | Your **stake back** (the contract pays, the option leg doesn't) |
+| Past your strike | Your stake back **plus** the option leg's payout for every $1 past the strike |
+| At or past the ceiling | The most it can pay |
+
+**Bought while your side was losing.** Your strike sits on the losing side of the price to beat. The option leg gains from the first move your way, but the order makes a profit only once the price closes past the price to beat.
+
+| Where the price closes | What the order pays |
+|------------------------|---------------------|
+| Short of your strike | $0. You lose your stake. |
+| Between your strike and the price to beat | Only the option leg pays: part of your stake back |
+| At or past the price to beat | Your stake back **plus** the option leg's payout for the whole distance from your strike |
+| At or past the ceiling | The most it can pay |
 
 - An Up order wins on a close at or above the price to beat. A Down order loses on an unchanged close, because an unchanged close settles Up. See the [tie rule](/interval/how-windows-work#up-and-down).
-- The ride starts at the **live price** when you buy, not at the price to beat. If the price is already past the price to beat when you buy, the bet is already winning and the ride counts from there.
-- The cap is set when you buy, so the most an order can pay is known up front.
+- The gold figure on the ticket is the option leg's rate. If it reads "+$23.26 · every $100 BTC climbs" and BTC closes $200 past your strike on your side of the price to beat, the order pays your stake back plus about $46.52.
+
+## How the option leg is quoted
+
+Boost is new, and its option legs don't trade on an order book. There's no live book of bids and asks for them, so the market's **Book** tab shows the regular contract only. Instead the option leg is quoted on request (**RFQ**, request for quote): a price is worked out for your order at the moment you place it, from the asset's live price and how far it's expected to move in the time left.
+
+- The contract part is priced at the regular contract's current ask on the market's order book.
+- A cash-out is quoted the same way, at the moment you tap it: the contract at the book's current bid, plus what the option leg is worth then.
+- Each quote is made for your order at that moment, so the gold figure and the Boost card can change between when you look and when you buy. If the payout moves more than 10% against what the ticket showed, the order is refused so you can check the new figures.
 
 ## Where it's offered
 
@@ -37,7 +64,7 @@ Boost is offered on the **5-, 15- and 60-minute** stock, crypto and Pre-IPO mark
 
 - The **Boost** row sits under the amount on the **Buy** ticket. It isn't on **Limit**.
 - Boost and ⚡ **1-tap** are one or the other: turning Boost on turns 1-tap off.
-- When a side is priced so close to $1 that there's almost nothing left to ride, the Boost row hides. It comes back when the price does.
+- When a side is priced so close to $1 that almost nothing is left for the option leg, the Boost row hides. It comes back when the price does.
 - Trade credit is used before your cash, as on a regular buy. Under the **Buy** button the ticket shows the split, for example "Uses $3.00 credit + $2.00 cash · you keep the profit". What happens to the credit at the close or on a sale is on the [Trade credit](/portfolio/trade-credit#boost-orders) page.
 - You need **Allow trading** first.
 
@@ -71,13 +98,13 @@ While it's closed, the Buy button reads **Boost reopens 10:00 AM** (or a day and
     Open a stock, crypto or Pre-IPO market, or tap **Up** or **Down** on a market card. Keep the ticket on **Buy**, and pick **▲ Up** or **▼ Down**.
   </Step>
   <Step title="Enter your stake">
-    Type an amount, or use the chips. A Boost order is **$1 to $100**. Once you've typed an amount, the Boost row shows what the ride adds, in gold, for example "+$23.26 · every $100 BTC climbs". Before you type one, it reads **Win More**.
+    Type an amount, or use the chips. A Boost order is **$1 to $100**. Once you've typed an amount, the Boost row shows the option leg's rate in gold, for example "+$23.26 · every $100 BTC climbs". Before you type one, it reads **Win More**.
   </Step>
   <Step title="Turn on Boost">
     Flip the switch on the **Boost** row. The **Boost card** opens above the Buy button (see below). Tap the ⓘ beside **Boost** for a short explainer, **How Boost works**.
   </Step>
   <Step title="Buy">
-    Tap **Buy Up Boost $10** (or Down). Your stake leaves your cash at once (any trade credit is used first). The **Trade executed** card reads "Bought $10.00 Up Boosted" and "Wins up to $1,000.00 · settles 3:15 PM". You can add a take or skip it.
+    Tap **Buy Up Boost $10** (or Down). The option leg is struck at the live price as your order is placed, and your stake leaves your cash at once (any trade credit is used first). The **Trade executed** card reads "Bought $10.00 Up Boosted" and "Wins up to $1,000.00 · settles 3:15 PM". You can add a take or skip it.
   </Step>
 </Steps>
 
@@ -91,9 +118,9 @@ The card shows the real numbers for the amount you typed, and they move with the
 
 | Part | What it says |
 |------|--------------|
-| **The big gold figure** | What the ride adds for each step the asset moves your way, for example **+$23.26** "every $100 BTC climbs" (or "falls" for Down). The step is a round amount picked for the window, so it doesn't change as the clock runs down. |
-| **If it ended now** | Shown while your side is winning: where the price stands against the price to beat ("BTC is $412.50 above the price to beat") and what the order would pay if the window ended now: your stake back, for example "$10.00 back". The ride starts at the price you buy at, so right now it adds nothing yet. |
-| **Get your money back** | Shown while your side is losing: how far the asset has to move to get your stake back, for example "if BTC climbs $120.00". |
+| **The big gold figure** | What the option leg adds for each step the asset moves your way past your strike, for example **+$23.26** "every $100 BTC climbs" (or "falls" for Down). The step is a round amount picked for the window, so it doesn't change as the clock runs down. |
+| **If it ended now** | Shown while your side is winning: where the price stands against the price to beat ("BTC is $412.50 above the price to beat") and what the order would pay if the window ended now: your stake back, for example "$10.00 back". Your strike would be the price right now, so the option leg adds nothing yet. |
+| **Get your money back** | Shown while your side is losing: how far the asset has to move your way for the order to pay your stake back, for example "if BTC climbs $120.00". |
 
 <Note>
 On a phone the trade dialog pins **You risk** and the gold figure above the Buy button, with the **Boost** row.
@@ -101,7 +128,7 @@ On a phone the trade dialog pins **You risk** and the gold figure above the Buy 
 
 ## After you buy
 
-- **On the chart**, a gold line marks where your ride starts, **"Boost from $X"**, until the window closes.
+- **On the chart**, a gold line marks your option leg's strike, **"Boost from $X"**, until the window closes.
 - **Live Positions** on the market page lists your open Boost orders above your regular rows: the side, "$10.00 stake", and a **Cash out ~$X** button. The line under it reads "Now ~$10.40 (+$0.40) · wins up to $1,000.00", or "wins up to $1,000.00 · pays off the close price" when there's no live value. It shows **Open** while the window runs, **Paying…** at the close, and **Selling…** while a cash-out goes through. If trade credit funded part of the stake, the row says how much, for example "· $2.00 credit".
 - **Your Portfolio** lists it among your interval positions as "Boost $10.00 stake", and its Activity rows carry a **Boost** stamp. See [Positions and history](/portfolio/positions-and-history).
 - **On the feed**, a Boost buy carries a shimmering gold **Boost** tag. See [Profiles and social](/platform/profiles-and-social).
@@ -122,7 +149,7 @@ If a sale can't go through, you see a message such as "This order has nothing to
 
 ## At the close
 
-A Boost order settles automatically on the window's result, like any interval contract. The payout goes to your cash shortly after the window's result is in. If a result still can't be read 6 hours after the close, your stake is refunded.
+A Boost order settles automatically on the window's result, like any interval contract: the contract pays if the close is on your side of the price to beat, and the option leg pays for the distance past its strike. The payout goes to your cash shortly after the window's result is in. If a result still can't be read 6 hours after the close, your stake is refunded.
 
 You get a notification in the **Trade results** category, linked to the settled window's page. Its title names the market and the side, for example "Bitcoin (BTC) · 15 min · Boosted Up". The text under it says how the order did:
 
@@ -143,7 +170,7 @@ The settled window's page shows the window's result, not your order's payout. Yo
 
 ## Fees and stats
 
-- There's no separate fee line; the figures on the ticket already reflect the price.
+- There's no trading fee on a Boost order. The option leg has a price, like any option, and the figures on the ticket already include it.
 - Your **Portfolio** value counts open Boost orders at their live value, or at the stake when there's none.
 - A Boost order's result, what it paid less its stake, counts toward your **Realized P&L** and the leaderboards like any other trade.
 

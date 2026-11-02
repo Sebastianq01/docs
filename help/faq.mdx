@@ -125,7 +125,7 @@ description: "Frequently asked questions about updown."
 
 <AccordionGroup>
   <Accordion title="What is Boost?">
-    A switch on the interval ticket, on 5-, 15- and 60-minute stock, crypto and Pre-IPO markets. Off, your order is a regular Up or Down contract. On, it becomes a Boost order: a right call pays your stake back, and every dollar the price moves your way after you buy adds more, up to 100× your stake. It settles on the same result as the regular contract. A market that doesn't offer it shows the regular ticket only. See [Boost](/interval/multiplier).
+    A switch on the interval ticket, on 5-, 15- and 60-minute stock, crypto and Pre-IPO markets. Off, your order is a regular Up or Down contract. On, it becomes a Boost order: the regular contract, sized so a right call pays your stake back, plus an option leg struck at the live price when you place the order, so every dollar the price moves your way from there adds more, up to 100× your stake. It settles on the same result as the regular contract. A market that doesn't offer it shows the regular ticket only. See [Boost](/interval/multiplier).
   </Accordion>
 
   <Accordion title="Can I lose more than I put in?">
@@ -133,11 +133,15 @@ description: "Frequently asked questions about updown."
   </Accordion>
 
   <Accordion title="I called the direction right. Why didn't I make more?">
-    A Boost order's extra payout, the ride, starts at the price when you bought, not at the price to beat. A close on your side of the price to beat pays your stake back; only the distance past the price when you bought adds to it.
+    A Boost order's option leg is struck at the live price when you placed the order, not at the price to beat. If your side was already winning when you bought, a close on your side of the price to beat but short of your strike pays your stake back and nothing more: only the distance past your strike adds to it. See [How it pays](/interval/multiplier#how-it-pays).
+  </Accordion>
+
+  <Accordion title="Why can't I see bids and asks for the option leg?">
+    Boost's option legs don't trade on an order book. Each one is quoted on request (RFQ) for your order when you place it, and again when you cash out, so the market's **Book** tab shows the regular contract only. See [How the option leg is quoted](/interval/multiplier#how-the-option-leg-is-quoted).
   </Accordion>
 
   <Accordion title="What does the gold figure mean?">
-    What the ride adds for each step the asset moves your way after you buy, for example "+$23.26 · every $100 BTC climbs". It's worked out for the amount you typed and moves with the price.
+    What the option leg adds for each step the asset moves your way past your strike, for example "+$23.26 · every $100 BTC climbs". It's worked out for the amount you typed and moves with the price.
   </Accordion>
 
   <Accordion title="Why can't I use Boost right now?">
@@ -146,7 +150,7 @@ description: "Frequently asked questions about updown."
     - **Crypto:** weekdays, around the 8:30 AM and 10:00 AM US data releases.
     - **Stocks:** weekdays 9:00–10:00 AM (the open), 3:30–4:30 PM (the close), and around the 8:30 AM data release; the 4 AM and 8 PM session starts; weekends (Friday 4 PM to Sunday 8 PM); and market holidays.
 
-    The Boost row also hides when a side is priced so close to $1 that there's almost nothing left to ride. Regular Up / Down stays open: switch Boost off to trade.
+    The Boost row also hides when a side is priced so close to $1 that almost nothing is left for the option leg. Regular Up / Down stays open: switch Boost off to trade.
   </Accordion>
 
   <Accordion title="What are the limits?">
@@ -162,7 +166,7 @@ description: "Frequently asked questions about updown."
   </Accordion>
 
   <Accordion title="Is there a fee on a Boost order?">
-    There's no separate fee line; the figures on the ticket already reflect the price.
+    There's no trading fee on a Boost order. The option leg has a price, like any option, and the figures on the ticket already include it.
   </Accordion>
 
   <Accordion title="Do Boost orders count toward the leaderboards and my stats?">
