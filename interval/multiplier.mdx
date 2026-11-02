@@ -1,31 +1,51 @@
 ---
-title: "Multiplier"
-description: "Use the Multiplier slider for a bigger payout on a bigger move: how it pays, how it splits your stake, the break-even price, when it's paused, selling early, settlement, and limits."
+title: "Boost"
+description: "Turn on Boost for a bigger payout on a bigger move: your stake back on a right call, plus more for every dollar the price moves your way after you buy. How it pays, the ticket, when it's paused, cashing out early, settlement, and limits."
 ---
 
-import { StakeSplitChart } from "/snippets/stake-split-chart.jsx";
-
-The **Multiplier** is a slider on the interval ticket, from **1×** to **10×**. A regular interval contract pays the same $1 whether the price closes one cent or five dollars past the price to beat. A **multiplier order** pays **more the further the price closes in your direction**, up to a cap. In exchange it pays **less, or nothing, when the move is small**. The most you can lose is your stake.
+**Boost** is a switch on the interval ticket. A regular interval contract pays the same $1 a contract whether the price closes one cent or a hundred dollars past the price to beat. A **Boost order** keeps that bet and adds a **ride**: every dollar the price moves your way **after you buy** adds to the payout, up to **100× your stake**.
 
 <Warning>
-You can pick the right direction and still lose money. If the price closes only a little past the price to beat, a multiplier order can pay back less than you put in. At 10×, a close just past it returns only a small part of your stake. Check the break-even, the purple **To beat**, before you buy.
+A Boost order is a real-money order like any other. If the price closes on the wrong side of the price to beat, you lose your whole stake. The ride only adds money for the distance the price travels past where it was **when you bought**.
 </Warning>
+
+## How it pays
+
+Your stake is split in two:
+
+| Part | What it does |
+|------|--------------|
+| **The bet** | Enough of your stake buys the regular contract that a right call pays your **whole stake back**. Example: $10 on Up when Up costs 65¢ puts $6.50 into the bet, which pays $10 on any close at or above the price to beat. |
+| **The ride** | The rest of the stake. It pays a fixed amount for every $1 the asset closes past the price **at the moment you bought**, up to a cap. |
+
+So where the price closes decides the payout:
+
+| Where the price closes | What a Boost order pays |
+|------------------------|-------------------------|
+| **The wrong side** of the price to beat | $0. You lose your stake. |
+| **Your side**, but not past the price when you bought | Your **stake back** |
+| **Further your way** than the price when you bought | Your stake back, **plus** the ride: more for every dollar further |
+| **At or past the cap** | The most it can pay: **100× your stake**, or what the regular contract alone pays if that's more |
+
+- An Up order wins on a close at or above the price to beat. A Down order loses on an unchanged close, because an unchanged close settles Up. See the [tie rule](/interval/how-windows-work#up-and-down).
+- The ride starts at the **live price** when you buy, not at the price to beat. If the price is already past the price to beat when you buy, the bet is already winning and the ride counts from there.
+- The cap is set when you buy, so the most an order can pay is known up front.
 
 ## Where it's offered
 
-The Multiplier is offered on stock and crypto interval markets. It isn't offered on Pre-IPO markets.
+Boost is offered on the **5-, 15- and 60-minute** stock, crypto and Pre-IPO markets. It isn't offered on daily markets or on Gold and Silver.
 
-- The **Multiplier** slider sits at the bottom of the ticket, under the amount, while the ticket is on **Buy** and **Market**.
-- It also shows in ⚡ **1-tap** mode. Moving the slider above 1× switches the amount chips back to the amount box.
-- At **1×** your order is a regular Up or Down buy. Above 1× it becomes a **multiplier order** on the same window, settled on the same result.
-- Trade credit is used before your cash, as on a regular buy. Under the **Buy** button the ticket shows the split, for example "Uses $3.00 credit + $2.00 cash · you keep the profit". What happens to the credit at the close or on a sale is on the [Trade credit](/portfolio/trade-credit#multiplier-orders) page.
+- The **Boost** row sits under the amount on the **Buy** ticket. It isn't on **Limit**.
+- Boost and ⚡ **1-tap** are one or the other: turning Boost on turns 1-tap off.
+- When a side is priced so close to $1 that there's almost nothing left to ride, the Boost row hides. It comes back when the price does.
+- Trade credit is used before your cash, as on a regular buy. Under the **Buy** button the ticket shows the split, for example "Uses $3.00 credit + $2.00 cash · you keep the profit". What happens to the credit at the close or on a sale is on the [Trade credit](/portfolio/trade-credit#boost-orders) page.
 - You need **Allow trading** first.
 
-The Multiplier is open in every window until the window's **last minute**. It also pauses at the times below.
+Boost is open in every window until the window's **last minute**. It also pauses at the times below.
 
 ### When it's paused
 
-It pauses around the times prices jump the most. Regular Up / Down stays open. A window that overlaps any of these times takes no multiplier orders (all times ET):
+It pauses around the times prices jump the most. Regular Up / Down stays open. A window that overlaps any of these times takes no Boost orders (all times ET):
 
 | Market | Paused |
 |--------|--------|
@@ -34,7 +54,7 @@ It pauses around the times prices jump the most. Regular Up / Down stays open. A
 | | Weekdays **4:00–5:00 AM** (the pre-market start) and every night **8:00–9:00 PM** (the overnight session start) |
 | | **Weekends**, Friday 4:00 PM → Sunday 8:00 PM, and **market holidays**, 4:00 AM–8:00 PM |
 | **Crypto** | Weekdays **8:30–8:45 AM** and **10:00–10:15 AM** (the US data releases) |
-| **Every market** | The window's **last minute**, for buying and for selling early |
+| **Every market** | The window's **last minute**, for buying and for cashing out early |
 
 So on a weekday a stock offers it from 5:00 to 8:30 AM, from 8:45 to 9:00 AM (short windows only), from 10:00 AM to 3:30 PM, from 4:30 to 8:00 PM (Monday to Thursday), and overnight from 9:00 PM to 4:00 AM (Sunday to Thursday nights).
 
@@ -42,267 +62,99 @@ Longer windows overlap more pauses. On weekdays, 60-minute stock windows startin
 
 The last-minute cutoff means you can buy in the first 4 minutes of a 5-minute window, the first 14 of a 15-minute window, and the first 59 of a 60-minute window.
 
-While it's closed, the Buy button reads **Multiplier reopens at 10:00 AM**, or a day and time such as **Multiplier reopens Sun 9:00 PM**, in your local time. The note under it says why:
+While it's closed, the Buy button reads **Boost reopens 10:00 AM** (or a day and time, in your local time), or **Closed for the last 1 minute**. The note under it reads "Switch Boost off to trade Up / Down."
 
-- "Paused around the market open and close. Slide to 1× to trade Up / Down."
-- "Paused for US data releases. Slide to 1× to trade Up / Down."
-- "Paused at the 4 AM / 8 PM ET session starts, weekends and market holidays. Slide to 1× to trade Up / Down."
-- In the last minute: "Slide to 1× to trade Up / Down."
-
-## How it pays
-
-What a multiplier order pays depends only on where the price closes:
-
-| Where the price closes | What the order pays |
-|------------------------|---------------------|
-| **The wrong side** of the price to beat | $0. You lose your stake. |
-| **Just past** the price to beat | A small payout. The higher the setting, the less it pays here: at 10× only a small part of the stake. At 1× it pays like a regular contract. |
-| **Further your way** | The payout climbs with the distance. |
-| **At or past the cap** | The maximum, shown as **Win up to** |
-
-- An Up order loses on a close under the price to beat. A Down order loses on a close at or above it, because an unchanged close settles Up. See the [tie rule](/interval/how-windows-work#up-and-down).
-- On an unchanged close, an Up order pays about what it pays just past the price to beat (a small part of the stake at 10×). A Down order loses its stake.
-- The **break-even** is the close at which the order pays back exactly its stake. Every close past it is a profit.
-- The cap is set when you buy, so the most an order can pay is known up front.
-
-## What's in a multiplier order
-
-Every multiplier order is a mix of three parts:
-
-| Part | Starts paying | What it pays |
-|------|---------------|--------------|
-| **Regular contract** | On any close on your side of the price to beat | $1 per contract if your direction is right, by any amount. The same as a regular interval buy. |
-| **Target option** | Right at the price to beat | For every dollar the price finishes past the price to beat, so a bigger move pays more. |
-| **Higher-strike option** | At a **higher strike**, 1.1 typical moves past the price to beat | For every dollar the price finishes past that strike. It's cheaper, so each dollar buys more, but it pays only once the price clears the strike. |
-
-A **typical move** is how far that market usually moves over a window of that length, measured from its recent trading. It's re-measured as the market gets busier or quieter, so a busy market's strikes sit further out than a quiet one's.
-
-### How the slider splits your stake
-
-The slider sets the mix, and the mix for each setting is **fixed**: the same on every market and at every moment of the window. The live price changes what each part costs, never how your stake is divided.
-
-<StakeSplitChart />
-
-The split moves in three stages:
-
-- **1× to 3×:** your stake moves from the regular contract into the target option. A right call always pays something.
-- **3.5× to 7×:** the regular contract holds at 15% while your stake moves from the target option into the higher-strike option. A right call still always pays something.
-- **7× to 10×:** the regular contract is released. At 10×, 90% of your stake is in the higher-strike option, with 5% left in the regular contract and 5% in the target option, so a right call that ends short of the higher strike still pays a little back (about a fifth of the stake on a close one typical move past the price to beat), never $0.
-
-<Accordion title="Exact split at each setting">
-  | Setting | Regular contract | Target option | Higher-strike option |
-  |---------|------------------|---------------|----------------------|
-  | 1× | 100% | — | — |
-  | 2× | 60% | 40% | — |
-  | 3× | 20% | 80% | — |
-  | 3.5× | 15% | 80% | 5% |
-  | 4× | 15% | 75% | 10% |
-  | 5× | 15% | 60% | 25% |
-  | 6× | 15% | 45% | 40% |
-  | 7× | 15% | 30% | 55% |
-  | 8× | 10% | 20% | 70% |
-  | 9× | 5% | 10% | 85% |
-  | 10× | 5% | 5% | 90% |
-
-  Settings between the rows blend in a straight line from one row to the next.
-</Accordion>
-
-### What ×N means
-
-**×N names the mix.** It's calibrated on a strong move, about **2.5 typical moves** your way. On a move that size, an order at ×N pays about N times what a regular contract of the same stake would. If a market's typical move over the window is 0.4%, that strong move is about 1%. Smaller moves pay less than N times; bigger moves pay more, up to the cap.
-
-The card's **+$N** row is a different, simpler figure: the close at which your profit reaches N times your stake.
-
-<Tip>
-The setting is a label for the mix. The card and **Payout at every price** show what your order actually pays at each closing price, for this market at this moment. Read those before you buy.
-</Tip>
-
-### The cap
-
-Every option stops paying at a **cap** 5 typical moves past the price to beat, so the most an order can pay is known when you place it.
-
-If the price has already moved your way when you buy, the higher strike and the cap count from **where the price is now**, not from the price to beat. The higher strike then sits just past the current price, by the move still expected before the close. That keeps 10× within reach late in a window. The target option stays on the price to beat.
-
-## Placing a multiplier order
+## Placing a Boost order
 
 <Steps>
   <Step title="Open the ticket">
-    Open a stock or crypto market, or tap **Up** or **Down** on a market card. Keep the ticket on **Buy** and **Market**, and pick **▲ Up** or **▼ Down**.
+    Open a stock, crypto or Pre-IPO market, or tap **Up** or **Down** on a market card. Keep the ticket on **Buy**, and pick **▲ Up** or **▼ Down**.
   </Step>
   <Step title="Enter your stake">
-    Type an amount, or tap **+$1**, **+$5**, **+$10**, or **+$100**. A multiplier order is **$1 to $100**. Until you enter one, the card reads "Shown for a $1 order — enter an amount."
+    Type an amount, or use the chips. A Boost order is **$1 to $100**. Once you've typed an amount, the Boost row shows what the ride adds, in gold, for example "+$23.26 · every $100 BTC climbs". Before you type one, it reads **Win More**.
   </Step>
-  <Step title="Drag the Multiplier slider">
-    The setting shows beside the slider, from "1.0×" to "10.0×". At **5×**, the order makes **5 times your stake** in profit if the price closes far enough your way: $5 at 5× makes **+$25**. The card shows the price it takes. Smaller moves pay less; bigger moves pay more, up to the cap. If a window can't offer more than 1×, the slider is disabled.
-
-    The slider is not a straight line. A quarter of the way along is **2×**, halfway is **3×**, three quarters is **5×**, and only the last quarter runs from 5× up to 10×. The settings most orders win at sit in the first half of the bar, where the break-even stays close to the live price. Under the setting, the slider shows the order's **chance of profit** as you move it, for example **35% win**.
-  </Step>
-  <Step title="Read the card">
-    The card under the slider shows the real numbers for your order (see below). The market's **To beat** turns purple and shows your break-even, and a dashed purple line marks it on the chart ("Break-even $X").
+  <Step title="Turn on Boost">
+    Flip the switch on the **Boost** row. The **Boost card** opens above the Buy button (see below). Tap the ⓘ beside **Boost** for a short explainer, **How Boost works**.
   </Step>
   <Step title="Buy">
-    Tap **Buy Up 2.4× · $5** (or Down). Your stake leaves your cash at once (any trade credit is used first). The **Trade executed** card reads "Bought $5.00 Up 2.4×" and "Wins up to $23.10 · settles 3:15 PM". You can add a take or skip it.
+    Tap **Buy Up Boost $10** (or Down). Your stake leaves your cash at once (any trade credit is used first). The **Trade executed** card reads "Bought $10.00 Up Boosted" and "Wins up to $1,000.00 · settles 3:15 PM". You can add a take or skip it.
   </Step>
 </Steps>
 
 <Note>
-On a phone, the trade dialog opens as a bottom sheet. Its header shows **To beat · break-even** in purple, and the "+$N · If above $X" row and the Buy button are pinned at the bottom.
+A **NEW** tag sits beside **Boost** until December 1, 2026.
 </Note>
 
-## Reading the card
+## Reading the Boost card
 
-| Row | What it shows |
-|-----|---------------|
-| **You risk** / **Win up to** | Your stake, which is the most you can lose / the most the order can pay, at the cap. **Win up to** includes your stake. |
-| **+$N** · "If above $X" (or "If below $X") | The close it takes to make **+$N** in profit. N is the setting times your stake. When that's out of reach, the row shows the profit at the cap. |
-| **Chance of profit** | An estimate of the chance the order pays back more than its stake |
-| **Payout at every price ›** | Opens the payout view (below) |
+The card shows the real numbers for the amount you typed, and they move with the price.
 
-There's no row labelled "Break-even". The break-even is the purple **To beat** on the market page:
+| Part | What it says |
+|------|--------------|
+| **The big gold figure** | What the ride adds for each step the asset moves your way, for example **+$23.26** "every $100 BTC climbs" (or "falls" for Down). The step is a round amount picked for the window, so it doesn't change as the clock runs down. |
+| **If it ended now** | Shown while your side is winning: where the price stands against the price to beat ("BTC is $412.50 above the price to beat") and what the order would pay if the window ended now: your stake back, for example "$10.00 back". The ride starts at the price you buy at, so right now it adds nothing yet. |
+| **Get your money back** | Shown while your side is losing: how far the asset has to move to get your stake back, for example "if BTC climbs $120.00". |
 
-- When any win already pays back your stake, the break-even is the price to beat itself.
-- When even the cap can't pay your stake back, **To beat** stays white.
-- On a stock market, the card and **To beat** show prices to 4 decimal places.
+<Note>
+On a phone the trade dialog pins **You risk** and the gold figure above the Buy button, with the **Boost** row.
+</Note>
 
-Here is an example for **NVDA Up, $5 at 5×**, bought at the start of a 60-minute window with the price to beat at $217.40. Prices are rounded to the cent here.
+## After you buy
 
-| Card | |
-|------|---|
-| **You risk** | $5.00 |
-| **Win up to** | $110.49 |
-| **+$25.00** | If above $218.53 |
-| **Chance of profit** | 28% |
-| **To beat** (purple) | $217.67 |
+- **On the chart**, a gold line marks where your ride starts, **"Boost from $X"**, until the window closes.
+- **Live Positions** on the market page lists your open Boost orders above your regular rows: the side, "$10.00 stake", and a **Cash out ~$X** button. The line under it reads "Now ~$10.40 (+$0.40) · wins up to $1,000.00", or "wins up to $1,000.00 · pays off the close price" when there's no live value. It shows **Open** while the window runs, **Paying…** at the close, and **Selling…** while a cash-out goes through. If trade credit funded part of the stake, the row says how much, for example "· $2.00 credit".
+- **Your Portfolio** lists it among your interval positions as "Boost $10.00 stake", and its Activity rows carry a **Boost** stamp. See [Positions and history](/portfolio/positions-and-history).
+- **On the feed**, a Boost buy carries a shimmering gold **Boost** tag. See [Profiles and social](/platform/profiles-and-social).
 
-And what it pays at different closes:
+## Cashing out early
 
-| If NVDA closes | Pays | P&L |
-|----------------|------|-----|
-| Under $217.40 | $0.00 | −$5.00 |
-| Just above $217.40 | $1.63 | −$3.37 |
-| **$217.67**: break-even | $5.00 | $0.00 |
-| $218.00 | $9.56 | +$4.56 |
-| **$218.53**: 5 times your stake | $30.00 | +$25.00 |
-| $219.50 | $71.46 | +$66.46 |
-| $220.42 or higher | $110.49 | +$105.49 |
+You can sell an open Boost order back before the window's last minute:
 
-- **Under the price to beat**, the order loses its whole stake, like a losing interval contract.
-- **Just past it**, the direction is right but the move is tiny. Only the regular-contract part pays, so you get back only part of your stake.
-- **From $217.67**, the break-even, every close is a profit, and the payout keeps climbing with the move.
-- **Past $218.06**, the higher strike, that part of the order starts paying too, so the profit grows faster.
-- **$220.42** is the cap. The payout stops growing there, at the **Win up to** figure.
-
-The numbers move with the live price and the time left.
-
-### Payout at every price
-
-**Payout at every price ›** opens **Your order** (a bottom sheet on phones):
-
-- **To beat** (your break-even, in purple, or "—"), **Now**, and **Your stake** (**Shown for** before you enter an amount).
-- **⇄ Table** / **⇄ Chart** switches the view.
-- **Chart:** your profit or loss against the closing price, with a dashed break-even line and the current price marked. Hover, or drag on touch, to read any closing price, such as "$82,374.86 → +$4.20".
-- **Table:** **If BTC closes** · **Pays** · **P&L** (with the market's ticker), from "Under $X" and "Just above $X" through two prices further out to "$Y or higher". For Down, the rows read "$X or over", "Just below $X", and "$Y or lower".
-
-### The explainer
-
-The ⓘ next to **Multiplier** opens **How the multiplier works**. It plays an animated $1 example that compares a regular contract with the Multiplier at **2×**, **4×**, or **8×**, with captions such as "Small move: right direction, and still a loss." and "Big move: the multiplier pays much more." Its text reads:
-
-> A regular Up or Down contract pays the same whether the price closes one cent or five dollars past the price to beat. The multiplier pays more the further it closes your way, up to a cap.
->
-> **The catch:** a small move pays less. You can pick the right direction and still lose money if the price only just gets past the price to beat. Check the **Break-even** price before you buy.
->
-> Drag the slider: 1× is a regular contract. Higher means a bigger payout on a big move, and a break-even further away.
->
-> You can sell early from Live Positions, until the window's last minute.
-
-**Read more ↗** opens this page.
-
-## Why small moves pay less
-
-A multiplier order puts most of your stake on how far the price moves, not just which way. That's what lets a big move pay many times a regular contract. The cost is that a move smaller than the break-even pays back less than you put in. The higher you set the slider, the bigger the payout on a big move, and the further past the price to beat the break-even sits.
-
-The payouts follow how much the market is moving. When it has been busy, bigger moves are more likely, so the same stake buys less payout per dollar of move. When it's quiet, it buys more.
-
-If you buy after the price has already moved your way, the break-even usually sits past where the price is now, not at the price to beat. You're paying for the move that has already happened.
-
-High settings late in a window are long shots. With a few minutes left, a 10× order can pay many times its stake, but it rarely does. Check **Chance of profit** before you buy.
-
-## Your open orders
-
-**Live Positions** on the market page lists your open multiplier orders on that market, above your regular rows:
-
-- The side, the multiple, the stake, and **Sell ~$X**, for example "Up 2.4× $5.00 stake".
-- "Now ~$5.20 (+$0.20) · wins up to $23.10": what the order is worth at the current price, and the most it can pay. With no live value it reads "wins up to $23.10 · pays off the close price".
-- **Open** while the window runs, **Paying…** at the close, and **Selling…** while a sale goes through.
-- If trade credit funded part of the stake, the row says how much, for example "· $2.00 credit".
-
-Live Positions' **Value**, **Unrealized**, and **Total return** totals don't include multiplier orders.
-
-After you buy, a solid purple line, "Your break-even $X", stays on the chart until the order settles or you sell it. Several orders on one side combine into one break-even. The ticket opens on the side you hold.
-
-Your Portfolio's open positions list multiplier orders among your interval rows, sorted by close time, with a line such as "2.4× multiplier · $5.00 stake · wins up to $23.10 · pays off the close". The right side shows the live value and P&L, or "awaiting settle". On the feed, a multiplier buy carries a shimmering "2.4×" tag. **Copy** on one opens the trade dialog on the same market and side at 1×. See [Profiles and social](/platform/profiles-and-social).
-
-## Selling early
-
-You can sell an open multiplier order before the window's last minute:
-
-1. Tap **Sell ~$X** on its row in **Live Positions**. The figure is the current sell-back price. There's no confirmation step, and the button reads **Selling…**.
+1. Tap **Cash out ~$X** on its row in **Live Positions**. The figure is what reaches your cash now. The button reads **Selling…** while it goes through.
 2. The money goes to your cash straight away, and you get a notification that reads, for example, "Sold for $6.12 (+$1.12)".
 
-- The sell-back price is **below the order's live value** ("Now ~$X"), so buying and selling straight back costs money.
-- **Sell** shows while there's a fresh price and the order is worth at least 1¢ to sell. It disappears in the window's last minute, the same cutoff as buying.
+- The cash-out price is **below the order's live value** ("Now ~$X"), so buying and cashing straight back out costs money.
+- **Cash out** shows while there's a fresh price and the order is worth at least 1¢ to sell. It disappears in the window's last minute, the same cutoff as buying.
 - If the price drops more than 10% below the one shown as you tap, the sale is refused so you can check the new price.
-- You sell from Live Positions on the market page, not from the ticket or Portfolio.
-- If trade credit funded part of the stake, **Sell ~$X** shows what reaches your cash. A sale at a loss refills your credit first, so the button can read "~$2.00 credit" when the whole sale goes back to your credit. Hover it for the split. See [Trade credit](/portfolio/trade-credit#multiplier-orders).
+- If trade credit funded part of the stake, **Cash out ~$X** shows what reaches your cash. A sale at a loss refills your credit first, so the button can read "~$2.00 credit" when the whole sale goes back to your credit. Hover it for the split. See [Trade credit](/portfolio/trade-credit#boost-orders).
 
 If a sale can't go through, you see a message such as "This order has nothing to sell right now — it still pays off at the close." or "We couldn't pay the sale — nothing moved and your order is still open."
 
 ## At the close
 
-A multiplier order settles automatically on the window's result, like any interval contract. The payout goes to your cash shortly after the window's result is in. If a result still can't be read 6 hours after the close, your stake is refunded.
+A Boost order settles automatically on the window's result, like any interval contract. The payout goes to your cash shortly after the window's result is in. If a result still can't be read 6 hours after the close, your stake is refunded.
 
-You get a notification in the **Trade results** category, linked to the settled window's page. Its title names the market, the side and the multiple, for example "Bitcoin (BTC) · 15 min · Up at 2.4×" (a Boost order reads "… · Boosted Up"). The text under it says how the order did:
+You get a notification in the **Trade results** category, linked to the settled window's page. Its title names the market and the side, for example "Bitcoin (BTC) · 15 min · Boosted Up". The text under it says how the order did:
 
 | Outcome | Notification text |
 |---------|-------------------|
-| Paid out more than the stake | "You won $7.40 · paid $12.40" (the profit, then what was paid) |
-| Paid back less than the stake | "You lost $3.00 · paid $2.00" |
-| Settled worthless | "You lost $5.00" |
-| Paid back exactly the stake | "Broke even · paid $5.00" |
-| Refunded | "Refunded $5.00 · no close price" |
-| Sold early | "Sold for $6.12 (+$1.12)" |
+| Paid out more than the stake | "You won $7.40 · paid $17.40" (the profit, then what was paid) |
+| Paid back less than the stake | "You lost $3.00 · paid $7.00" |
+| Settled worthless | "You lost $10.00" |
+| Paid back exactly the stake | "Broke even · paid $10.00" |
+| Refunded | "Refunded $10.00 · no close price" |
+| Cashed out early | "Sold for $6.12 (+$1.12)" |
 
 If trade credit funded part of the stake, the text counts your cash result and says what happened to the credit.
 
-As a push notification on your phone, a win reads "You won $7.40" over the market and the multiple. Anything else names the market and says "Your trade settled. Tap to see how it went."
+As a push notification on your phone, a win reads "You won $7.40" over the market. Anything else names the market and says "Your trade settled. Tap to see how it went."
 
-The settled window's page shows the window's result, not your order's payout. Your Portfolio **Activity** has a **Buy** row for the order and one result row, each with a "×" stamp on the title:
-
-| Chip | Detail | Amount |
-|------|--------|--------|
-| **Buy** | "$5.00 stake" | −$5.00 |
-| **Sell** | "$5.00 stake · sold for $6.12" | +$6.12 |
-| **Won** | "$5.00 stake · paid $8.40" | +$8.40 |
-| **Lost** | "$5.00 stake · settled worthless" | $0.00 |
-| **Settled** | "$5.00 stake · refunded" | +$5.00 |
-
-See [Positions and history](/portfolio/positions-and-history).
+The settled window's page shows the window's result, not your order's payout. Your Portfolio **Activity** has a **Buy** row for the order and one result row (**Sell**, **Won**, **Lost** or **Settled**), each with the **Boost** stamp.
 
 ## Fees and stats
 
-- There's no separate fee line; the payouts on the ticket already reflect the price.
-- At 1×, the order is a regular interval buy with the regular fee. See [Placing orders](/interval/placing-orders).
-- Your **Portfolio** value counts open multiplier orders at their live value, or at the stake when there's none.
-- Multiplier orders don't count toward your **Volume**, your **Realized P&L**, the Trading Tournament, leaderboards, or creator rewards.
+- There's no separate fee line; the figures on the ticket already reflect the price.
+- Your **Portfolio** value counts open Boost orders at their live value, or at the stake when there's none.
+- A Boost order's result, what it paid less its stake, counts toward your **Realized P&L** and the leaderboards like any other trade.
 
 ## Limits and messages
 
 | Rule | What you see |
 |------|--------------|
 | **Stake** $1 to $100 per order | The button reads **Min $1** or **Max $100 per order**. If refused: "Enter between $1 and $100." |
-| **No new orders in a window's last minute** | "Multiplier orders close in a window's last minute." |
-| **Paused** at the times above | "The multiplier pauses for a short while around the market open (9–10 AM ET) and close (3:30–4:30 PM ET), the 4 AM and 8 PM ET session starts, the morning US data releases, and stocks' weekends — regular Up / Down is still open." |
-| **The payout moved** more than 10% below what the ticket showed | "The price moved — check the new payout and try again." |
+| **No new orders in a window's last minute** | **Closed for the last 1 minute**, and "Switch Boost off to trade Up / Down." |
+| **Paused** at the times above | **Boost reopens …** on the button |
+| **The price moved** more than 10% against what the ticket showed | "The price moved — check the new payout and try again." |
 | **No fresh price** yet | "Waiting for a fresh price — try again in a moment." |
 | **No price** for your side | "No price for this side right now." |
 | **The window isn't trading** | "This window isn't trading right now." |
@@ -310,16 +162,19 @@ See [Positions and history](/portfolio/positions-and-history).
 | **Trade credit can't be read** right now | "Trade credit is unavailable right now — try again in a moment." |
 | **Allow trading** not done yet | "Allow trading first, then place the order again." |
 | **An earlier order** is still confirming | "Your order is being confirmed — check your orders in a moment before trying again." |
-| **The market doesn't offer it** | "The multiplier isn't offered on this market." |
-| **The Multiplier is unavailable** | "The multiplier isn't available here." Orders already open still settle. |
+| **The market doesn't offer it** | The Boost row doesn't show. |
 
-The limits apply to multiplier orders only. Regular interval buys aren't affected.
+The limits apply to Boost orders only. Regular interval buys aren't affected.
+
+<Tip>
+Trading from your own code? Boost orders are on the Trade API too: see [Boost orders](/api/boosts).
+</Tip>
 
 <CardGroup cols={2}>
   <Card title="How windows work" icon="clock" href="/interval/how-windows-work">
     The price to beat, the tie rule, and settlement.
   </Card>
   <Card title="Glossary" icon="book" href="/help/glossary">
-    Multiplier order, stake, break-even, and more.
+    Boost, stake, and more.
   </Card>
 </CardGroup>
