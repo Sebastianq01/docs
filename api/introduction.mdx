@@ -10,6 +10,10 @@ The Trade API lets your own program — a trading tool, an AI agent, a dashboard
 Market data is public — no key needed. [Placing and cancelling orders](/api/orders) needs an API key with the **Trade** permission. Any signed-in account can [create one](/api/authentication#create-a-key).
 </Note>
 
+<Tip>
+**Post liquidity, earn rebates.** Your resting orders pay no fee. When another trader fills one, you earn 30–40% of the fee they paid. It's automatic. See [Fees and maker rebates](/api/fees-and-rebates).
+</Tip>
+
 ## Base URLs
 
 | | URL |
@@ -88,5 +92,8 @@ Every endpoint and message is generated from the same schemas the server checks 
   </Card>
   <Card title="Order entry" icon="arrow-right-arrow-left" href="/api/orders">
     Place, track and cancel orders; retry safely.
+  </Card>
+  <Card title="Fees and maker rebates" icon="percent" href="/api/fees-and-rebates">
+    Resting orders pay no fee and earn up to 40% of the taker fee.
   </Card>
 </CardGroup>

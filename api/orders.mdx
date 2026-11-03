@@ -55,10 +55,10 @@ curl -X POST https://api.updown.fast/trade-api/v1/portfolio/orders \
 | `price` | Your limit, on the **outcome's own** scale: a Down buy at `"0.30"` pays at most 30¢ a contract. `"0.01"`–`"0.99"`. |
 | `count` | Contracts, up to two decimals: `"0.01"`–`"10000"`. |
 | `time_in_force` | `good_till_canceled` (default): what doesn't fill rests on the book until it fills, you cancel it, or the window closes. `immediate_or_cancel`: fills what it can now, the rest is cancelled. |
-| `post_only` | `true` refuses the order if any of it would trade at once, so it can only add to the book. Good-till-canceled only. |
+| `post_only` | `true` refuses the order if any of it would trade at once, so it can only add to the book, as a fee-free maker order that earns [rebates](/api/fees-and-rebates). Good-till-canceled only. |
 | `client_order_id` | **Required.** Your id for the order — see below. |
 
-The response is the order as the book holds it **after** your request: a buy that crosses the book comes back already part- or fully filled (`fill_count`, `average_fill_price`, `fees_paid`).
+The response is the order as the book holds it **after** your request: a buy that crosses the book comes back already part- or fully filled (`fill_count`, `average_fill_price`, `fees_paid`). Only the taker side of a fill pays a fee. Fills against your resting order are free and earn a maker rebate: see [Fees and maker rebates](/api/fees-and-rebates).
 
 **A buy holds cash** while it rests: the price plus the most a fill could cost in fees, per contract. The hold is released the moment the order fills at a better price, is cancelled, or the window closes. [`GET /portfolio/balance`](/api-reference/get-balance) shows what you can spend right now.
 
