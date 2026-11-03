@@ -1,7 +1,7 @@
 ---
 title: "Fees and maker rebates"
 sidebarTitle: "Fees and rebates"
-description: "Resting orders pay no fee and earn a share of the taker fee when another trader fills them. Automatic, no sign-up."
+description: "Resting orders pay no fee and earn a share of the taker fee when another trader fills them, paid to your wallet automatically."
 ---
 
 updown charges a fee only on the **taker** side of a fill. If your order was **resting** on the book when another trader's order filled against it, you are the **maker**: you pay nothing, and you earn a **maker rebate**, a share of the fee the taker paid.
@@ -59,13 +59,14 @@ The agreement lists who can earn and the conduct rules. Wash trading, spoofing, 
 
 ## Getting paid
 
-- Rebates add up over each **UTC day** and become claimable the day after.
-- Claim them from your [API keys page](https://www.updown.fast/api-keys). A claim pays your whole claimable balance to your updown wallet, as cash.
-- The minimum claim is **$1.00**. A smaller balance stays until it reaches $1.00.
-- A claim needs the current Terms of Service accepted.
-- Your **Portfolio** page shows your total rebates beside **Joined**. Open it for a log of every day you earned and every payout.
+Rebates are **paid automatically**. There is nothing to claim.
 
-There is no API endpoint for rebates yet. Your API keys page shows what you have earned each day.
+- About once a minute, everything you have earned and not yet been paid is sent to your updown wallet as cash.
+- Payouts go out in whole cents, so an amount under 1¢ waits for the next payout.
+- Payouts need the current Terms of Service accepted.
+- Your **Portfolio** page shows your total rebates beside **Joined**. Open it for a log by day: what you earned, and each payout with its transaction.
+
+There is no API endpoint for rebates yet. Your [API keys page](https://www.updown.fast/api-keys) also shows what you have earned each day.
 
 ## Program start
 
