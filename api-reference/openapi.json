@@ -1463,7 +1463,7 @@
       "post": {
         "operationId": "createBoost",
         "summary": "Create Boost",
-        "description": "Place a Boost (`trade` key, live keys only) on the window open now: your stake buys the plain bet plus a ride that pays more the further the price runs your way — the website's Boost, or with `kind: multiplier` its leverage slider. Priced by the server exactly as on the website, with the same stake limit ($1 to $100 per order) and the same cutoff (none in a window's last minute). The stake is paid from your cash when the order is placed and counts in your key's daily limit. `client_order_id` is required and idempotent: resending the same id with the same body returns the order already placed. After a timeout or `503 EXCHANGE_UNAVAILABLE`, look it up by `client_order_id` (GET /portfolio/boosts) before sending it again.",
+        "description": "Place a Boost (`trade` key, live keys only) on the window open now: your stake buys the bet (the regular contract, bought on the order book at the current ask with the taker fee) plus a ride (an option leg struck at the live price) that pays more the further the price runs your way — the website's Boost. Priced by the server exactly as on the website, with the same stake limit (1 to 100 dollars per order) and the same cutoff (none in a window's last minute). The stake is paid from your cash when the order is placed and counts in your key's daily limit. `client_order_id` is required and idempotent: resending the same id with the same body returns the order already placed. After a timeout or `503 EXCHANGE_UNAVAILABLE`, look it up by `client_order_id` (GET /portfolio/boosts) before sending it again.",
         "security": [
           {
             "apiKey": []
@@ -3552,6 +3552,26 @@
                 "minimum": 0,
                 "maximum": 9007199254740991,
                 "description": "Epoch milliseconds (UTC)."
+              },
+              "bet": {
+                "type": "object",
+                "properties": {
+                  "order_id": {
+                    "type": "string"
+                  },
+                  "contracts": {
+                    "type": "string"
+                  },
+                  "cost": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "order_id",
+                  "contracts",
+                  "cost"
+                ],
+                "additionalProperties": false
               }
             },
             "required": [
@@ -3678,6 +3698,26 @@
                   "minimum": 0,
                   "maximum": 9007199254740991,
                   "description": "Epoch milliseconds (UTC)."
+                },
+                "bet": {
+                  "type": "object",
+                  "properties": {
+                    "order_id": {
+                      "type": "string"
+                    },
+                    "contracts": {
+                      "type": "string"
+                    },
+                    "cost": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "order_id",
+                    "contracts",
+                    "cost"
+                  ],
+                  "additionalProperties": false
                 }
               },
               "required": [
@@ -3917,19 +3957,15 @@
           "stake": {
             "type": "string",
             "pattern": "^(0|[1-9]\\d*)(\\.\\d{1,2})?$",
-            "description": "Dollars, as a string — up to two decimals."
+            "description": "The whole Boost (bet + ride), in dollars as a string, up to two decimals: from 1 to 100 dollars."
           },
           "kind": {
             "default": "boost",
             "type": "string",
             "enum": [
-              "boost",
-              "multiplier"
-            ]
-          },
-          "multiplier": {
-            "type": "string",
-            "pattern": "^([1-9]|10)(\\.\\d{1,2})?$"
+              "boost"
+            ],
+            "description": "Always `boost` (the default; you can leave it out)."
           },
           "expected_max_payout": {
             "type": "string",
