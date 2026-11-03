@@ -84,4 +84,4 @@ Here the best Up bid is 1¢ and the best Up ask is 1 − 0.95 = 5¢. Each level 
 
 ## Fees
 
-Each series publishes the fee it charges per contract right now in `fee_schedule`, as a formula in `p` (the price), for example a taker fee of `min(0.07 * p * (1 - p), 0.0175)` and a maker fee of `0`. Read it from the API rather than hard-coding it: it can change.
+Each series publishes the fee it charges per contract right now in `fee_schedule`, as a formula in `p` (the price), for example a taker fee of `min(0.07 * p * (1 - p), 0.0175)` and a maker fee of `0`. Read it from the API rather than hard-coding it: it can change. Makers also earn a share of the taker fee: see [Fees and maker rebates](/api/fees-and-rebates).

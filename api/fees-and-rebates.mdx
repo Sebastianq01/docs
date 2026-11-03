@@ -1,0 +1,73 @@
+---
+title: "Fees and maker rebates"
+sidebarTitle: "Fees and rebates"
+description: "Resting orders pay no fee and earn a share of the taker fee when another trader fills them, paid to your wallet automatically."
+---
+
+updown charges a fee only on the **taker** side of a fill. If your order was **resting** on the book when another trader's order filled against it, you are the **maker**: you pay nothing, and you earn a **maker rebate**, a share of the fee the taker paid.
+
+The rebate is automatic. There is nothing to sign up for or turn on. It applies to every resting order you place, through the API or on the website.
+
+<Note>
+The program's full terms are the [API and Liquidity Provider Agreement](https://www.updown.fast/liquidity-providers). By using the API or resting an order on the book, you agree to it.
+</Note>
+
+## Maker and taker
+
+| | You are the… | Fee | Rebate |
+|---|---|---|---|
+| Your order fills against an order already resting on the book | **Taker** | Taker fee | — |
+| Another order fills against your resting order | **Maker** | `0` | A share of that taker's fee |
+
+An order that crosses the book when you place it is a taker for the part that fills at once. Whatever is left rests, and is a maker from then on. Set [`post_only: true`](/api/orders#place-an-order) to make sure an order only ever rests: if any of it would trade at once, it is refused with `POST_ONLY_CROSS`.
+
+## The taker fee
+
+Each series publishes its fee in [`fee_schedule`](/api-reference/list-series), as a formula in `p`, the fill price in dollars:
+
+```json
+"fee_schedule": {
+  "maker": "0",
+  "taker": "min(0.07 * p * (1 - p), 0.0175) per contract"
+}
+```
+
+The fee is largest at 50¢ (1.75¢ per contract) and falls toward zero near 1¢ and 99¢. It is charged in dollars and rounded to the millionth of a dollar. A taker order's fees show in its `fees_paid`. On your maker fills it stays `"0"`.
+
+Read `fee_schedule` from the API rather than hard-coding it. It can change.
+
+## Rebate rates
+
+Your share of the taker fee depends on the market's category (the series' `category`):
+
+| Category | Your share of the taker fee |
+|---|---|
+| `crypto` | 30% |
+| `stocks` | 40% |
+| `preipo` | 40% |
+| `commodities` | 40% |
+
+Markets in other categories earn no rebate for now. Each fill earns the rate in force when it filled. We give at least 7 days' notice before a rate goes down.
+
+**Example.** A taker buys 100 contracts from your resting order at 50¢ on a crypto market. The taker pays 100 × 0.07 × 0.50 × 0.50 = **$1.75** in fees. You pay nothing and earn 30% of it: **$0.525**.
+
+## Which fills earn
+
+A fill earns a rebate when the taker is another trader in good standing. It earns nothing when the other side of the fill is your own account, or an account linked to yours (a [team](/platform/team-access) member of your account, or an account you are a member of). [Self-trade prevention](/api/errors) stops your order from filling against your own resting order. Don't rely on it as your only control.
+
+The agreement lists who can earn and the conduct rules. Wash trading, spoofing, or splitting activity across accounts to earn more voids rebates.
+
+## Getting paid
+
+Rebates are **paid automatically**. There is nothing to claim.
+
+- About once a minute, everything you have earned and not yet been paid is sent to your updown wallet as cash.
+- Payouts go out in whole cents, so an amount under 1¢ waits for the next payout.
+- Payouts need the current Terms of Service accepted.
+- Your **Portfolio** page shows your total rebates beside **Joined**. Open it for a log by day: what you earned, and each payout with its transaction.
+
+There is no API endpoint for rebates yet. Your [API keys page](https://www.updown.fast/api-keys) also shows what you have earned each day.
+
+## Program start
+
+The program has run since **October 17, 2026** (midnight US Eastern). Every eligible maker fill from then on earns.

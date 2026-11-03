@@ -2059,17 +2059,20 @@
                   "type": "object",
                   "properties": {
                     "maker": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "The fee on a fill against your resting order: \"0\". Maker fills also earn a rebate, a share of the taker's fee (see the docs' Fees and maker rebates)."
                     },
                     "taker": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "The fee on a fill your order takes from the book, per contract, as a formula in p (the fill price in dollars)."
                     }
                   },
                   "required": [
                     "maker",
                     "taker"
                   ],
-                  "additionalProperties": false
+                  "additionalProperties": false,
+                  "description": "The fee rule per contract, as the book charges it right now. Only the taker pays."
                 }
               },
               "required": [
@@ -2176,17 +2179,20 @@
                 "type": "object",
                 "properties": {
                   "maker": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The fee on a fill against your resting order: \"0\". Maker fills also earn a rebate, a share of the taker's fee (see the docs' Fees and maker rebates)."
                   },
                   "taker": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The fee on a fill your order takes from the book, per contract, as a formula in p (the fill price in dollars)."
                   }
                 },
                 "required": [
                   "maker",
                   "taker"
                 ],
-                "additionalProperties": false
+                "additionalProperties": false,
+                "description": "The fee rule per contract, as the book charges it right now. Only the taker pays."
               }
             },
             "required": [
@@ -3826,6 +3832,7 @@
           },
           "post_only": {
             "default": false,
+            "description": "Refuse the order (POST_ONLY_CROSS) if any of it would trade at once, so it only rests on the book as a fee-free maker order that earns rebates. good_till_canceled only.",
             "type": "boolean"
           },
           "client_order_id": {
@@ -3894,6 +3901,7 @@
                 },
                 "post_only": {
                   "default": false,
+                  "description": "Refuse the order (POST_ONLY_CROSS) if any of it would trade at once, so it only rests on the book as a fee-free maker order that earns rebates. good_till_canceled only.",
                   "type": "boolean"
                 },
                 "client_order_id": {

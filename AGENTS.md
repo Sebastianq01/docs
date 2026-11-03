@@ -72,6 +72,7 @@ The API tab is written for developers, market makers, and AI agents. It follows 
 
 - The **order book** is described openly there (bids, levels, depth, checksums), because the API is the book. The user guides keep the rule above and never mention it.
 - Fields the API returns are documented as they are, including `fee_schedule` (the fee formula) and `settlement_source` / `contract_terms` (the price sources). They are public to anyone who calls the API.
+- The maker rebate program is documented on `api/fees-and-rebates` WITH its rates (2026-11-03, the owner's ask). The rates mirror `LP_REBATE_SCHEDULE` in the main repo (`packages/shared/src/clob/lp-rebates.ts`) and the agreement at `https://www.updown.fast/liquidity-providers`; update all three together. The user guides still don't quote rebate rates.
 - Still never say who provides liquidity or trades against API users. Describe mechanics only: orders, bids, fills, the taker side.
 - `api-reference/openapi.json` and `asyncapi.json` are GENERATED in the main repo (`packages/protocol`, `npm run generate -w packages/protocol`).
   - Never edit them here. Copy them over after a change.

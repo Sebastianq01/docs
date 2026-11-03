@@ -89,6 +89,7 @@
               "api/authentication",
               "api/markets",
               "api/orders",
+              "api/fees-and-rebates",
               "api/boosts",
               "api/websocket",
               "api/rate-limits",
