@@ -3957,15 +3957,12 @@
           "stake": {
             "type": "string",
             "pattern": "^(0|[1-9]\\d*)(\\.\\d{1,2})?$",
-            "description": "The whole Boost (bet + ride), in dollars as a string, up to two decimals: from 1 to 100 dollars."
+            "description": "Dollars, as a string — up to two decimals."
           },
           "kind": {
             "default": "boost",
             "type": "string",
-            "enum": [
-              "boost"
-            ],
-            "description": "Always `boost` (the default; you can leave it out)."
+            "const": "boost"
           },
           "expected_max_payout": {
             "type": "string",
