@@ -131,6 +131,19 @@ To have orders, fills and positions **pushed** to you instead, use the websocket
 
 Winning contracts settle automatically after the window closes; the payout lands in your account's cash.
 
+## Server timestamps
+
+Every REST response carries the server's own timestamps as headers, in epoch milliseconds on our clock. Subtract them from your own send and receive times to split a round trip into network, queue and matching-engine time.
+
+| Header | When |
+|---|---|
+| `UpDown-Received-Ms` | We received your request. |
+| `UpDown-Queued-Ms` | Your order or cancel entered the book's queue. |
+| `UpDown-Engine-Done-Ms` | The matching engine answered it. |
+| `UpDown-Sent-Ms` | We sent the response. |
+
+`UpDown-Queued-Ms` and `UpDown-Engine-Done-Ms` appear only on orders and cancels that reached the book. A batch reports its first item's queue time and its last item's answer. A read, or a request refused before the book (a bad body, an unknown order, `RATE_LIMITED`), carries only `UpDown-Received-Ms` and `UpDown-Sent-Ms`.
+
 ## Limits
 
 Three layers apply to every order, and the tightest wins:
