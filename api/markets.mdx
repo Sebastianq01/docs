@@ -23,11 +23,13 @@ Every series has a `category` and a `settlement_source`:
 
 | `category` | Underlying | `settlement_source` | Examples |
 |---|---|---|---|
-| `crypto` | A coin's dollar price | `coinbase` | `btc-5m`, `sol-15m`, `doge-60m` |
+| `crypto` | A coin's dollar price | `chainlink` (Chainlink Data Streams) | `btc-5m`, `sol-15m`, `doge-60m` |
 | `stocks` | A US stock or ETF | `pyth` (the stock feed), or `robinhood-chain` where a series settles on the stock's token | `aapl-15m`, `spy-60m`, `spcx-5m` |
 | `preipo` | A private company's **implied valuation** — the price of its cash-settled pre-IPO perpetual on Hyperliquid, in billions of dollars (1,690 ≈ $1.69T) | `hyperliquid` | `openai-5m`, `anthropic-60m` |
 
 For a pre-IPO series the ticker names the company and `underlying` is its symbol: `anthropic-15m` has `underlying: "ANTH"`, and the same symbol is `P:ANTH` on the websocket's [`prices`](/api/websocket#prices) channel. Its price to beat and settlement price are each the **median of the perpetual's mark over the 60 seconds ending at the boundary**, never a single print. New orders pause while that reference is stale, halted or delisted; open positions still settle. SpaceX (`spcx-*`) is a stock series, not a pre-IPO one.
+
+A crypto series' price to beat and settlement price are each the coin's **Chainlink Data Streams 60-second time-weighted average price** at the boundary. A stock series' are each the **average of the stock feed's price over the 60 seconds ending at the boundary**. The API reported `coinbase` for crypto series until November 2026; no series settles on Coinbase now, and the value stays in the schema only so older clients keep parsing.
 
 ## The contract
 
