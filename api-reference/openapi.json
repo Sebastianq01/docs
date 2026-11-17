@@ -2009,6 +2009,7 @@
                 "settlement_source": {
                   "type": "string",
                   "enum": [
+                    "chainlink",
                     "coinbase",
                     "pyth",
                     "robinhood-chain",
@@ -2129,6 +2130,7 @@
               "settlement_source": {
                 "type": "string",
                 "enum": [
+                  "chainlink",
                   "coinbase",
                   "pyth",
                   "robinhood-chain",
