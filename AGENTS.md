@@ -24,9 +24,9 @@
 - **To beat** is the previous window's final 60-second value, not an instant price.
 - **The tie rule (since 1 October 2026):** Up wins when the close is **at or above** the price to beat, both rounded to 4 decimal places (DOGE: 7). Down needs a close strictly below. An unchanged close settles **Up**. Never write "strictly above" for Up or "ties go to Down". That rule applied before 1 October 2026 and still shows only in older window results.
 - **Websocket naming:** a channel name is what you subscribe to, and a message's `type` is its own name: `prices` → `price`, `user_orders` → `user_order`, `market_positions` → `market_position`, `orderbook_delta` → `orderbook_snapshot` then `orderbook_delta`. Any table of channels shows both columns.
-- Cash is **USDG** on **Robinhood Chain**.
+- Cash is **USDC** on **Base**.
   - Deposits: USDG on Robinhood Chain; USDC on Arbitrum, Base, or Polygon; USDC or USDT on Ethereum; or card, Cash App, and other crypto through **our payment partner**.
-  - Withdrawals: USDG on Robinhood Chain.
+  - Withdrawals: USDC on Base.
   - Do not use "pUSD".
 - Balance terms:
   - **Cash**, **Credit** (only while you hold trade credit), and **Portfolio** are the top-bar figures.
@@ -53,7 +53,7 @@
 - Do not document: options, the mobile app (until its release is confirmed), referrals, the Explore page, window chat, past tournaments, the Portfolio **Orders** tab, the "Backed by Alliance" badge, the admin dashboard, or archived Theta Labs routes.
 - Do not name data vendors for price feeds. Describe the sources generically: "a consolidated real-time feed of the US-listed stock price", "a 24/7 market that tracks where traders expect the stock to reopen", "a 60-second time-weighted average that combines trading on major exchanges", "a third-party pre-IPO market whose price tracks the company's implied valuation".
 - Do not name the payment partner or the GIF provider. Say "our payment partner".
-- Name Robinhood Chain on the money pages, because the balance is held there.
+- Name Base on the money pages, because the balance is held there.
 - Fees:
   - Intervals: "Orders that trade right away pay a small taker fee, built into what you spend and what 'To win' shows. Limit orders that wait and are filled later pay no fee. Nothing is charged at settlement."
   - Multiplier: "There's no separate fee line; the payouts on the ticket already reflect the price."
