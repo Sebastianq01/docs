@@ -6,7 +6,7 @@ description: "Add money with stablecoins, card, Cash App, or other crypto, and w
 Your cash is **USDC** on **Base**, held in your wallet. You can deposit in three ways:
 
 - send USDC on Base directly;
-- send USDC or USDT from another network, and updown moves it over automatically;
+- send USDC, USDG, or USDT from another network, and updown moves it over automatically;
 - pay by card, Cash App, or other crypto through our payment partner, which delivers USDC to your wallet.
 
 Withdrawals send USDC to any Base address.
@@ -27,7 +27,7 @@ The menu has two tabs, **Cash** and **Crypto**. It opens on **Cash** each time.
 |-----|-----|-----------|---------------|
 | Cash | **Deposit with card** | "Debit or credit · $50,000 limit" | Our payment partner's card checkout |
 | Cash | **Pay with Cash App** | "Deposit via Cash App · $10 min" | Our payment partner's Cash App flow |
-| Crypto | **Send stablecoins** | "USDC, USDG, or USDT" | updown's own deposit address and QR code, with no conversion |
+| Crypto | **Send stablecoins** | "USDC, USDG, or USDT" | updown's own deposit address and QR code |
 | Crypto | **Transfer any crypto** | "Any token · $10 min" | Our payment partner, which converts any token |
 | Crypto | **Connect wallet** | "Deposit from your wallet" | Our payment partner |
 | Crypto | **Pay with exchange** | "Transfer from an exchange" | Our payment partner |
@@ -44,13 +44,13 @@ The menu has two tabs, **Cash** and **Crypto**. It opens on **Cash** each time.
         Until you've given the one-time approval, the dialog shows the "Enable trading" panel: "One approval. After that, trades go through with no signing." Click **Allow trading**. It reads "Enabling trading" / "A few seconds. You can close this, it keeps going." When it reads "Trading enabled", click **Continue**. See [Account and profile](/account-and-profile).
       </Step>
       <Step title="Pick a network">
-        The network menu starts on **Robinhood Chain**. Pick the network you're sending from:
+        The network menu starts on **Base**. Pick the network you're sending from:
 
         | Network | Asset | Minimum | How it's credited |
         |---------|-------|---------|-------------------|
-        | **Robinhood Chain** | USDG | $0.50 | Directly. USDG in your wallet is your balance. |
-        | **Arbitrum** | USDC | $2.00 | Moved into your Robinhood Chain balance automatically |
-        | **Base** | USDC | $2.00 | Moved automatically |
+        | **Robinhood Chain** | USDG | $0.50 | Moved into your Base balance automatically |
+        | **Arbitrum** | USDC | $2.00 | Moved into your Base balance automatically |
+        | **Base** | USDC | $2.00 | Directly. USDC in your wallet is your balance. |
         | **Ethereum** | USDC or USDT | $20.00 | Moved automatically |
         | **Polygon** | USDC (native USDC only) | $2.00 | Moved automatically |
 
@@ -66,7 +66,7 @@ The menu has two tabs, **Cash** and **Crypto**. It opens on **Cash** each time.
 
         **On another network**, a toast reads "Detected $10.00 USDC — adding to your balance…". The dialog then shows "Adding your deposit to your balance…", and finishes with the toast "Deposit added to your balance".
 
-        You can close the dialog. While it's open, updown checks the network you picked about every 20 seconds. It also checks Arbitrum, Base, Ethereum, and Polygon when you open updown or come back to it. That check's toast names the network, for example "Detected $10.00 USDC on Base — adding to your balance…".
+        You can close the dialog. While it's open, updown checks the network you picked about every 20 seconds. It also checks Arbitrum, Robinhood Chain, Ethereum, and Polygon when you open updown or come back to it. That check's toast names the network, for example "Detected $10.00 USDC on Arbitrum — adding to your balance…".
       </Step>
     </Steps>
 
@@ -121,8 +121,9 @@ USDC on Base has no fee. Deposits on other networks lose a small amount when the
 
 | Direction | Method | Minimum or limit | Fee |
 |-----------|--------|------------------|-----|
-| Deposit | USDG on Robinhood Chain | $0.50 | None |
-| Deposit | USDC on Arbitrum, Base, or Polygon | $2 | A small amount when it's moved over |
+| Deposit | USDG on Robinhood Chain | $0.50 | A small amount when it's moved over |
+| Deposit | USDC on Base | $2 | None |
+| Deposit | USDC on Arbitrum or Polygon | $2 | A small amount when it's moved over |
 | Deposit | USDC or USDT on Ethereum | $20 | A small amount when it's moved over |
 | Deposit | Card | "$50,000 limit" | Our payment partner's, shown before you pay |
 | Deposit | Cash App | $10 | Our payment partner's, shown before you pay |
@@ -144,7 +145,7 @@ Withdrawals send **USDC on Base** to any address you choose. The dialog describe
     Type an amount in **Amount (USDC)**, or click **MAX**. The minimum is **$2**. The dialog shows **You receive** as "≈ $X.XX USDC". Errors read "Exceeds your balance" or "Minimum $2".
   </Step>
   <Step title="Confirm">
-    Click **Withdraw**. It reads "Withdrawing…", then "Withdrawal confirmed" and "≈ $X.XX in USDC is on its way to 0x12…abcd." **View transaction →** opens the transfer on the Robinhood Chain explorer. Click **Withdraw again** or **Done**.
+    Click **Withdraw**. It reads "Withdrawing…", then "Withdrawal confirmed" and "≈ $X.XX in USDC is on its way to 0x12…abcd." **View transaction →** opens the recipient's token transfers on Basescan. Click **Withdraw again** or **Done**.
   </Step>
 </Steps>
 
