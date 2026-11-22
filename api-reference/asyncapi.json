@@ -3,7 +3,7 @@
   "info": {
     "title": "updown Trade API websocket",
     "version": "1.0.0",
-    "description": "ONE websocket. Public channels (orderbook_delta, ticker, trade, window_lifecycle, prices) need no key; the private channels (user_orders, fill, market_positions) and cancel_on_disconnect need an API key sent in the handshake (Authorization: Bearer udk_…). Every data message carries a per-subscription seq; a gap means re-request a snapshot. Generated from packages/protocol — do not edit by hand."
+    "description": "ONE websocket. Public channels (orderbook_delta, ticker, trade, window_lifecycle, prices) need no key; the private channels (user_orders, fill, market_positions) cancel_on_disconnect and the order commands (create_order, cancel_order, batch_create_orders, batch_cancel_orders — same bodies and errors as the REST routes) need an API key sent in the handshake (Authorization: Bearer udk_…). Every data message carries a per-subscription seq; a gap means re-request a snapshot. Generated from packages/protocol — do not edit by hand."
   },
   "servers": {
     "production": {
@@ -83,16 +83,14 @@
                 },
                 "required": [
                   "channels"
-                ],
-                "additionalProperties": false
+                ]
               }
             },
             "required": [
               "id",
               "cmd",
               "params"
-            ],
-            "additionalProperties": false
+            ]
           }
         },
         "unsubscribe": {
@@ -125,16 +123,14 @@
                 },
                 "required": [
                   "sids"
-                ],
-                "additionalProperties": false
+                ]
               }
             },
             "required": [
               "id",
               "cmd",
               "params"
-            ],
-            "additionalProperties": false
+            ]
           }
         },
         "update_subscription": {
@@ -199,16 +195,14 @@
                 "required": [
                   "sid",
                   "action"
-                ],
-                "additionalProperties": false
+                ]
               }
             },
             "required": [
               "id",
               "cmd",
               "params"
-            ],
-            "additionalProperties": false
+            ]
           }
         },
         "list_subscriptions": {
@@ -230,8 +224,7 @@
             "required": [
               "id",
               "cmd"
-            ],
-            "additionalProperties": false
+            ]
           }
         },
         "cancel_on_disconnect": {
@@ -254,10 +247,106 @@
                 "properties": {
                   "enabled": {
                     "type": "boolean"
+                  },
+                  "scope": {
+                    "type": "string",
+                    "enum": [
+                      "account",
+                      "key"
+                    ]
+                  },
+                  "timeout_ms": {
+                    "type": "integer",
+                    "minimum": 1000,
+                    "maximum": 30000
                   }
                 },
                 "required": [
                   "enabled"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "cmd",
+              "params"
+            ]
+          }
+        },
+        "create_order": {
+          "name": "create_order",
+          "payload": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Client-chosen id, echoed on the reply."
+              },
+              "cmd": {
+                "type": "string",
+                "const": "create_order"
+              },
+              "params": {
+                "type": "object",
+                "properties": {
+                  "market_ticker": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9][a-z0-9-]{0,63}-\\d{6}-\\d{4}-\\d{4}(d\\d{1,2})?$",
+                    "description": "Market ticker (one window of a series), e.g. \"btc-15m-261002-1400-1415\". Opaque."
+                  },
+                  "outcome": {
+                    "type": "string",
+                    "enum": [
+                      "up",
+                      "down"
+                    ]
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "buy",
+                      "sell"
+                    ]
+                  },
+                  "price": {
+                    "type": "string",
+                    "pattern": "^0\\.(0[1-9]|[1-9]\\d|0\\d[1-9]|9\\d[1-9])$",
+                    "description": "Contract price in dollars: \"0.01\"–\"0.99\" (whole cents), or \"0.001\"–\"0.099\" / \"0.901\"–\"0.999\" on a tapered_deci_cent market (see price_ranges)."
+                  },
+                  "count": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9]\\d*)(\\.\\d{1,2})?$",
+                    "description": "Contracts, as a string — up to two decimals (centi-contracts)."
+                  },
+                  "time_in_force": {
+                    "default": "good_till_canceled",
+                    "type": "string",
+                    "enum": [
+                      "good_till_canceled",
+                      "immediate_or_cancel"
+                    ],
+                    "description": "good_till_canceled: what doesn't fill rests on the book until it fills, you cancel it or the window closes. immediate_or_cancel: fills what it can now; the rest is cancelled."
+                  },
+                  "post_only": {
+                    "default": false,
+                    "description": "Refuse the order (POST_ONLY_CROSS) if any of it would trade at once, so it only rests on the book as a fee-free maker order that earns rebates. good_till_canceled only.",
+                    "type": "boolean"
+                  },
+                  "client_order_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+                    "description": "Your id for the order, unique per account. Retrying with the same id never places a second order."
+                  }
+                },
+                "required": [
+                  "market_ticker",
+                  "outcome",
+                  "action",
+                  "price",
+                  "count",
+                  "client_order_id"
                 ],
                 "additionalProperties": false
               }
@@ -266,8 +355,186 @@
               "id",
               "cmd",
               "params"
-            ],
-            "additionalProperties": false
+            ]
+          }
+        },
+        "cancel_order": {
+          "name": "cancel_order",
+          "payload": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Client-chosen id, echoed on the reply."
+              },
+              "cmd": {
+                "type": "string",
+                "const": "cancel_order"
+              },
+              "params": {
+                "type": "object",
+                "properties": {
+                  "order_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                },
+                "required": [
+                  "order_id"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "cmd",
+              "params"
+            ]
+          }
+        },
+        "batch_create_orders": {
+          "name": "batch_create_orders",
+          "payload": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Client-chosen id, echoed on the reply."
+              },
+              "cmd": {
+                "type": "string",
+                "const": "batch_create_orders"
+              },
+              "params": {
+                "type": "object",
+                "properties": {
+                  "orders": {
+                    "minItems": 1,
+                    "maxItems": 20,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "market_ticker": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9][a-z0-9-]{0,63}-\\d{6}-\\d{4}-\\d{4}(d\\d{1,2})?$",
+                          "description": "Market ticker (one window of a series), e.g. \"btc-15m-261002-1400-1415\". Opaque."
+                        },
+                        "outcome": {
+                          "type": "string",
+                          "enum": [
+                            "up",
+                            "down"
+                          ]
+                        },
+                        "action": {
+                          "type": "string",
+                          "enum": [
+                            "buy",
+                            "sell"
+                          ]
+                        },
+                        "price": {
+                          "type": "string",
+                          "pattern": "^0\\.(0[1-9]|[1-9]\\d|0\\d[1-9]|9\\d[1-9])$",
+                          "description": "Contract price in dollars: \"0.01\"–\"0.99\" (whole cents), or \"0.001\"–\"0.099\" / \"0.901\"–\"0.999\" on a tapered_deci_cent market (see price_ranges)."
+                        },
+                        "count": {
+                          "type": "string",
+                          "pattern": "^(0|[1-9]\\d*)(\\.\\d{1,2})?$",
+                          "description": "Contracts, as a string — up to two decimals (centi-contracts)."
+                        },
+                        "time_in_force": {
+                          "default": "good_till_canceled",
+                          "type": "string",
+                          "enum": [
+                            "good_till_canceled",
+                            "immediate_or_cancel"
+                          ],
+                          "description": "good_till_canceled: what doesn't fill rests on the book until it fills, you cancel it or the window closes. immediate_or_cancel: fills what it can now; the rest is cancelled."
+                        },
+                        "post_only": {
+                          "default": false,
+                          "description": "Refuse the order (POST_ONLY_CROSS) if any of it would trade at once, so it only rests on the book as a fee-free maker order that earns rebates. good_till_canceled only.",
+                          "type": "boolean"
+                        },
+                        "client_order_id": {
+                          "type": "string",
+                          "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+                          "description": "Your id for the order, unique per account. Retrying with the same id never places a second order."
+                        }
+                      },
+                      "required": [
+                        "market_ticker",
+                        "outcome",
+                        "action",
+                        "price",
+                        "count",
+                        "client_order_id"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "description": "1–20 orders, placed together; results in this order. Each client_order_id at most once."
+                  }
+                },
+                "required": [
+                  "orders"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "cmd",
+              "params"
+            ]
+          }
+        },
+        "batch_cancel_orders": {
+          "name": "batch_cancel_orders",
+          "payload": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Client-chosen id, echoed on the reply."
+              },
+              "cmd": {
+                "type": "string",
+                "const": "batch_cancel_orders"
+              },
+              "params": {
+                "type": "object",
+                "properties": {
+                  "order_ids": {
+                    "minItems": 1,
+                    "maxItems": 100,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "description": "1–100 of your order ids, cancelled together; results in this order."
+                  }
+                },
+                "required": [
+                  "order_ids"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "cmd",
+              "params"
+            ]
           }
         },
         "subscribed": {
@@ -434,6 +701,21 @@
                       ],
                       "additionalProperties": false
                     }
+                  },
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "scope": {
+                    "type": "string",
+                    "enum": [
+                      "account",
+                      "key"
+                    ]
+                  },
+                  "timeout_ms": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
                   }
                 },
                 "additionalProperties": false
@@ -442,6 +724,596 @@
             "required": [
               "id",
               "type"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "order": {
+          "name": "order",
+          "payload": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Client-chosen id, echoed on the reply."
+              },
+              "type": {
+                "type": "string",
+                "const": "order"
+              },
+              "msg": {
+                "type": "object",
+                "properties": {
+                  "order": {
+                    "type": "object",
+                    "properties": {
+                      "order_id": {
+                        "type": "string"
+                      },
+                      "client_order_id": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+                        "description": "Your id for the order, unique per account. Retrying with the same id never places a second order."
+                      },
+                      "market_ticker": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9-]{0,63}-\\d{6}-\\d{4}-\\d{4}(d\\d{1,2})?$",
+                        "description": "Market ticker (one window of a series), e.g. \"btc-15m-261002-1400-1415\". Opaque."
+                      },
+                      "outcome": {
+                        "type": "string",
+                        "enum": [
+                          "up",
+                          "down"
+                        ]
+                      },
+                      "action": {
+                        "type": "string",
+                        "enum": [
+                          "buy",
+                          "sell"
+                        ]
+                      },
+                      "price": {
+                        "type": "string",
+                        "pattern": "^0\\.(0[1-9]|[1-9]\\d|0\\d[1-9]|9\\d[1-9])$",
+                        "description": "Contract price in dollars: \"0.01\"–\"0.99\" (whole cents), or \"0.001\"–\"0.099\" / \"0.901\"–\"0.999\" on a tapered_deci_cent market (see price_ranges)."
+                      },
+                      "time_in_force": {
+                        "type": "string",
+                        "enum": [
+                          "good_till_canceled",
+                          "immediate_or_cancel"
+                        ],
+                        "description": "good_till_canceled: what doesn't fill rests on the book until it fills, you cancel it or the window closes. immediate_or_cancel: fills what it can now; the rest is cancelled."
+                      },
+                      "post_only": {
+                        "type": "boolean"
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "resting",
+                          "executed",
+                          "canceled"
+                        ]
+                      },
+                      "count": {
+                        "type": "string",
+                        "pattern": "^(0|[1-9]\\d*)(\\.\\d{1,2})?$",
+                        "description": "Contracts, as a string — up to two decimals (centi-contracts)."
+                      },
+                      "fill_count": {
+                        "type": "string",
+                        "pattern": "^(0|[1-9]\\d*)(\\.\\d{1,2})?$",
+                        "description": "Contracts, as a string — up to two decimals (centi-contracts)."
+                      },
+                      "remaining_count": {
+                        "type": "string",
+                        "pattern": "^(0|[1-9]\\d*)(\\.\\d{1,2})?$",
+                        "description": "Contracts, as a string — up to two decimals (centi-contracts)."
+                      },
+                      "average_fill_price": {
+                        "type": "string"
+                      },
+                      "fees_paid": {
+                        "type": "string"
+                      },
+                      "created_ts_ms": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991,
+                        "description": "Epoch milliseconds (UTC)."
+                      }
+                    },
+                    "required": [
+                      "order_id",
+                      "client_order_id",
+                      "market_ticker",
+                      "outcome",
+                      "action",
+                      "price",
+                      "time_in_force",
+                      "post_only",
+                      "status",
+                      "count",
+                      "fill_count",
+                      "remaining_count",
+                      "created_ts_ms"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "error": {
+                    "type": "object",
+                    "properties": {
+                      "code": {
+                        "type": "string",
+                        "enum": [
+                          "BAD_REQUEST",
+                          "NOT_FOUND",
+                          "SERIES_NOT_FOUND",
+                          "MARKET_NOT_FOUND",
+                          "METHOD_NOT_ALLOWED",
+                          "RATE_LIMITED",
+                          "UNAUTHORIZED",
+                          "FORBIDDEN",
+                          "ORDER_NOT_FOUND",
+                          "IDEMPOTENCY_CONFLICT",
+                          "ACCOUNT_BUSY",
+                          "MARKET_NOT_OPEN",
+                          "INSUFFICIENT_BALANCE",
+                          "LIMIT_EXCEEDED",
+                          "POST_ONLY_CROSS",
+                          "SELF_TRADE",
+                          "TRADING_PAUSED",
+                          "ORDER_REJECTED",
+                          "BOOST_UNAVAILABLE",
+                          "INTERNAL_ERROR",
+                          "EXCHANGE_UNAVAILABLE"
+                        ]
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "code",
+                      "message"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "received_ts_ms": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991,
+                    "description": "Epoch milliseconds (UTC)."
+                  },
+                  "sent_ts_ms": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991,
+                    "description": "Epoch milliseconds (UTC)."
+                  }
+                },
+                "required": [
+                  "received_ts_ms",
+                  "sent_ts_ms"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "msg"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "batch_orders": {
+          "name": "batch_orders",
+          "payload": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Client-chosen id, echoed on the reply."
+              },
+              "type": {
+                "type": "string",
+                "const": "batch_orders"
+              },
+              "msg": {
+                "type": "object",
+                "properties": {
+                  "results": {
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "client_order_id": {
+                              "type": "string",
+                              "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+                              "description": "Your id for the order, unique per account. Retrying with the same id never places a second order."
+                            },
+                            "order": {
+                              "type": "object",
+                              "properties": {
+                                "order_id": {
+                                  "type": "string"
+                                },
+                                "client_order_id": {
+                                  "type": "string",
+                                  "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+                                  "description": "Your id for the order, unique per account. Retrying with the same id never places a second order."
+                                },
+                                "market_ticker": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,63}-\\d{6}-\\d{4}-\\d{4}(d\\d{1,2})?$",
+                                  "description": "Market ticker (one window of a series), e.g. \"btc-15m-261002-1400-1415\". Opaque."
+                                },
+                                "outcome": {
+                                  "type": "string",
+                                  "enum": [
+                                    "up",
+                                    "down"
+                                  ]
+                                },
+                                "action": {
+                                  "type": "string",
+                                  "enum": [
+                                    "buy",
+                                    "sell"
+                                  ]
+                                },
+                                "price": {
+                                  "type": "string",
+                                  "pattern": "^0\\.(0[1-9]|[1-9]\\d|0\\d[1-9]|9\\d[1-9])$",
+                                  "description": "Contract price in dollars: \"0.01\"–\"0.99\" (whole cents), or \"0.001\"–\"0.099\" / \"0.901\"–\"0.999\" on a tapered_deci_cent market (see price_ranges)."
+                                },
+                                "time_in_force": {
+                                  "type": "string",
+                                  "enum": [
+                                    "good_till_canceled",
+                                    "immediate_or_cancel"
+                                  ],
+                                  "description": "good_till_canceled: what doesn't fill rests on the book until it fills, you cancel it or the window closes. immediate_or_cancel: fills what it can now; the rest is cancelled."
+                                },
+                                "post_only": {
+                                  "type": "boolean"
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "enum": [
+                                    "resting",
+                                    "executed",
+                                    "canceled"
+                                  ]
+                                },
+                                "count": {
+                                  "type": "string",
+                                  "pattern": "^(0|[1-9]\\d*)(\\.\\d{1,2})?$",
+                                  "description": "Contracts, as a string — up to two decimals (centi-contracts)."
+                                },
+                                "fill_count": {
+                                  "type": "string",
+                                  "pattern": "^(0|[1-9]\\d*)(\\.\\d{1,2})?$",
+                                  "description": "Contracts, as a string — up to two decimals (centi-contracts)."
+                                },
+                                "remaining_count": {
+                                  "type": "string",
+                                  "pattern": "^(0|[1-9]\\d*)(\\.\\d{1,2})?$",
+                                  "description": "Contracts, as a string — up to two decimals (centi-contracts)."
+                                },
+                                "average_fill_price": {
+                                  "type": "string"
+                                },
+                                "fees_paid": {
+                                  "type": "string"
+                                },
+                                "created_ts_ms": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 9007199254740991,
+                                  "description": "Epoch milliseconds (UTC)."
+                                }
+                              },
+                              "required": [
+                                "order_id",
+                                "client_order_id",
+                                "market_ticker",
+                                "outcome",
+                                "action",
+                                "price",
+                                "time_in_force",
+                                "post_only",
+                                "status",
+                                "count",
+                                "fill_count",
+                                "remaining_count",
+                                "created_ts_ms"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "error": {
+                              "type": "object",
+                              "properties": {
+                                "code": {
+                                  "type": "string",
+                                  "enum": [
+                                    "BAD_REQUEST",
+                                    "NOT_FOUND",
+                                    "SERIES_NOT_FOUND",
+                                    "MARKET_NOT_FOUND",
+                                    "METHOD_NOT_ALLOWED",
+                                    "RATE_LIMITED",
+                                    "UNAUTHORIZED",
+                                    "FORBIDDEN",
+                                    "ORDER_NOT_FOUND",
+                                    "IDEMPOTENCY_CONFLICT",
+                                    "ACCOUNT_BUSY",
+                                    "MARKET_NOT_OPEN",
+                                    "INSUFFICIENT_BALANCE",
+                                    "LIMIT_EXCEEDED",
+                                    "POST_ONLY_CROSS",
+                                    "SELF_TRADE",
+                                    "TRADING_PAUSED",
+                                    "ORDER_REJECTED",
+                                    "BOOST_UNAVAILABLE",
+                                    "INTERNAL_ERROR",
+                                    "EXCHANGE_UNAVAILABLE"
+                                  ]
+                                },
+                                "message": {
+                                  "type": "string"
+                                },
+                                "details": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "code",
+                                "message"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "client_order_id"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "order_id": {
+                              "type": "string"
+                            },
+                            "order": {
+                              "type": "object",
+                              "properties": {
+                                "order_id": {
+                                  "type": "string"
+                                },
+                                "client_order_id": {
+                                  "type": "string",
+                                  "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+                                  "description": "Your id for the order, unique per account. Retrying with the same id never places a second order."
+                                },
+                                "market_ticker": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,63}-\\d{6}-\\d{4}-\\d{4}(d\\d{1,2})?$",
+                                  "description": "Market ticker (one window of a series), e.g. \"btc-15m-261002-1400-1415\". Opaque."
+                                },
+                                "outcome": {
+                                  "type": "string",
+                                  "enum": [
+                                    "up",
+                                    "down"
+                                  ]
+                                },
+                                "action": {
+                                  "type": "string",
+                                  "enum": [
+                                    "buy",
+                                    "sell"
+                                  ]
+                                },
+                                "price": {
+                                  "type": "string",
+                                  "pattern": "^0\\.(0[1-9]|[1-9]\\d|0\\d[1-9]|9\\d[1-9])$",
+                                  "description": "Contract price in dollars: \"0.01\"–\"0.99\" (whole cents), or \"0.001\"–\"0.099\" / \"0.901\"–\"0.999\" on a tapered_deci_cent market (see price_ranges)."
+                                },
+                                "time_in_force": {
+                                  "type": "string",
+                                  "enum": [
+                                    "good_till_canceled",
+                                    "immediate_or_cancel"
+                                  ],
+                                  "description": "good_till_canceled: what doesn't fill rests on the book until it fills, you cancel it or the window closes. immediate_or_cancel: fills what it can now; the rest is cancelled."
+                                },
+                                "post_only": {
+                                  "type": "boolean"
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "enum": [
+                                    "resting",
+                                    "executed",
+                                    "canceled"
+                                  ]
+                                },
+                                "count": {
+                                  "type": "string",
+                                  "pattern": "^(0|[1-9]\\d*)(\\.\\d{1,2})?$",
+                                  "description": "Contracts, as a string — up to two decimals (centi-contracts)."
+                                },
+                                "fill_count": {
+                                  "type": "string",
+                                  "pattern": "^(0|[1-9]\\d*)(\\.\\d{1,2})?$",
+                                  "description": "Contracts, as a string — up to two decimals (centi-contracts)."
+                                },
+                                "remaining_count": {
+                                  "type": "string",
+                                  "pattern": "^(0|[1-9]\\d*)(\\.\\d{1,2})?$",
+                                  "description": "Contracts, as a string — up to two decimals (centi-contracts)."
+                                },
+                                "average_fill_price": {
+                                  "type": "string"
+                                },
+                                "fees_paid": {
+                                  "type": "string"
+                                },
+                                "created_ts_ms": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 9007199254740991,
+                                  "description": "Epoch milliseconds (UTC)."
+                                }
+                              },
+                              "required": [
+                                "order_id",
+                                "client_order_id",
+                                "market_ticker",
+                                "outcome",
+                                "action",
+                                "price",
+                                "time_in_force",
+                                "post_only",
+                                "status",
+                                "count",
+                                "fill_count",
+                                "remaining_count",
+                                "created_ts_ms"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "error": {
+                              "type": "object",
+                              "properties": {
+                                "code": {
+                                  "type": "string",
+                                  "enum": [
+                                    "BAD_REQUEST",
+                                    "NOT_FOUND",
+                                    "SERIES_NOT_FOUND",
+                                    "MARKET_NOT_FOUND",
+                                    "METHOD_NOT_ALLOWED",
+                                    "RATE_LIMITED",
+                                    "UNAUTHORIZED",
+                                    "FORBIDDEN",
+                                    "ORDER_NOT_FOUND",
+                                    "IDEMPOTENCY_CONFLICT",
+                                    "ACCOUNT_BUSY",
+                                    "MARKET_NOT_OPEN",
+                                    "INSUFFICIENT_BALANCE",
+                                    "LIMIT_EXCEEDED",
+                                    "POST_ONLY_CROSS",
+                                    "SELF_TRADE",
+                                    "TRADING_PAUSED",
+                                    "ORDER_REJECTED",
+                                    "BOOST_UNAVAILABLE",
+                                    "INTERNAL_ERROR",
+                                    "EXCHANGE_UNAVAILABLE"
+                                  ]
+                                },
+                                "message": {
+                                  "type": "string"
+                                },
+                                "details": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "code",
+                                "message"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "order_id"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    }
+                  },
+                  "error": {
+                    "type": "object",
+                    "properties": {
+                      "code": {
+                        "type": "string",
+                        "enum": [
+                          "BAD_REQUEST",
+                          "NOT_FOUND",
+                          "SERIES_NOT_FOUND",
+                          "MARKET_NOT_FOUND",
+                          "METHOD_NOT_ALLOWED",
+                          "RATE_LIMITED",
+                          "UNAUTHORIZED",
+                          "FORBIDDEN",
+                          "ORDER_NOT_FOUND",
+                          "IDEMPOTENCY_CONFLICT",
+                          "ACCOUNT_BUSY",
+                          "MARKET_NOT_OPEN",
+                          "INSUFFICIENT_BALANCE",
+                          "LIMIT_EXCEEDED",
+                          "POST_ONLY_CROSS",
+                          "SELF_TRADE",
+                          "TRADING_PAUSED",
+                          "ORDER_REJECTED",
+                          "BOOST_UNAVAILABLE",
+                          "INTERNAL_ERROR",
+                          "EXCHANGE_UNAVAILABLE"
+                        ]
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "code",
+                      "message"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "received_ts_ms": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991,
+                    "description": "Epoch milliseconds (UTC)."
+                  },
+                  "sent_ts_ms": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991,
+                    "description": "Epoch milliseconds (UTC)."
+                  }
+                },
+                "required": [
+                  "received_ts_ms",
+                  "sent_ts_ms"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "msg"
             ],
             "additionalProperties": false
           }
@@ -528,8 +1400,8 @@
                       "prefixItems": [
                         {
                           "type": "string",
-                          "pattern": "^0\\.(0[1-9]|[1-9]\\d)$",
-                          "description": "Contract price in dollars, \"0.01\"–\"0.99\" (v1: whole cents)."
+                          "pattern": "^0\\.(0[1-9]|[1-9]\\d|0\\d[1-9]|9\\d[1-9])$",
+                          "description": "Contract price in dollars: \"0.01\"–\"0.99\" (whole cents), or \"0.001\"–\"0.099\" / \"0.901\"–\"0.999\" on a tapered_deci_cent market (see price_ranges)."
                         },
                         {
                           "type": "string",
@@ -547,8 +1419,8 @@
                       "prefixItems": [
                         {
                           "type": "string",
-                          "pattern": "^0\\.(0[1-9]|[1-9]\\d)$",
-                          "description": "Contract price in dollars, \"0.01\"–\"0.99\" (v1: whole cents)."
+                          "pattern": "^0\\.(0[1-9]|[1-9]\\d|0\\d[1-9]|9\\d[1-9])$",
+                          "description": "Contract price in dollars: \"0.01\"–\"0.99\" (whole cents), or \"0.001\"–\"0.099\" / \"0.901\"–\"0.999\" on a tapered_deci_cent market (see price_ranges)."
                         },
                         {
                           "type": "string",
@@ -626,13 +1498,18 @@
                   },
                   "price": {
                     "type": "string",
-                    "pattern": "^0\\.(0[1-9]|[1-9]\\d)$",
-                    "description": "Contract price in dollars, \"0.01\"–\"0.99\" (v1: whole cents)."
+                    "pattern": "^0\\.(0[1-9]|[1-9]\\d|0\\d[1-9]|9\\d[1-9])$",
+                    "description": "Contract price in dollars: \"0.01\"–\"0.99\" (whole cents), or \"0.001\"–\"0.099\" / \"0.901\"–\"0.999\" on a tapered_deci_cent market (see price_ranges)."
                   },
                   "delta": {
                     "type": "string",
                     "pattern": "^-?(0|[1-9]\\d*)(\\.\\d{1,2})?$",
                     "description": "Signed change in contracts at a level, as a string."
+                  },
+                  "count": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9]\\d*)(\\.\\d{1,2})?$",
+                    "description": "Contracts, as a string — up to two decimals (centi-contracts)."
                   },
                   "checksum": {
                     "type": "integer",
@@ -695,8 +1572,8 @@
                   },
                   "up_bid": {
                     "type": "string",
-                    "pattern": "^0\\.(0[1-9]|[1-9]\\d)$",
-                    "description": "Contract price in dollars, \"0.01\"–\"0.99\" (v1: whole cents)."
+                    "pattern": "^0\\.(0[1-9]|[1-9]\\d|0\\d[1-9]|9\\d[1-9])$",
+                    "description": "Contract price in dollars: \"0.01\"–\"0.99\" (whole cents), or \"0.001\"–\"0.099\" / \"0.901\"–\"0.999\" on a tapered_deci_cent market (see price_ranges)."
                   },
                   "up_bid_size": {
                     "type": "string",
@@ -705,8 +1582,8 @@
                   },
                   "up_ask": {
                     "type": "string",
-                    "pattern": "^0\\.(0[1-9]|[1-9]\\d)$",
-                    "description": "Contract price in dollars, \"0.01\"–\"0.99\" (v1: whole cents)."
+                    "pattern": "^0\\.(0[1-9]|[1-9]\\d|0\\d[1-9]|9\\d[1-9])$",
+                    "description": "Contract price in dollars: \"0.01\"–\"0.99\" (whole cents), or \"0.001\"–\"0.099\" / \"0.901\"–\"0.999\" on a tapered_deci_cent market (see price_ranges)."
                   },
                   "up_ask_size": {
                     "type": "string",
@@ -715,8 +1592,8 @@
                   },
                   "last_price": {
                     "type": "string",
-                    "pattern": "^0\\.(0[1-9]|[1-9]\\d)$",
-                    "description": "Contract price in dollars, \"0.01\"–\"0.99\" (v1: whole cents)."
+                    "pattern": "^0\\.(0[1-9]|[1-9]\\d|0\\d[1-9]|9\\d[1-9])$",
+                    "description": "Contract price in dollars: \"0.01\"–\"0.99\" (whole cents), or \"0.001\"–\"0.099\" / \"0.901\"–\"0.999\" on a tapered_deci_cent market (see price_ranges)."
                   }
                 },
                 "required": [
@@ -787,18 +1664,18 @@
                   },
                   "price": {
                     "type": "string",
-                    "pattern": "^0\\.(0[1-9]|[1-9]\\d)$",
-                    "description": "Contract price in dollars, \"0.01\"–\"0.99\" (v1: whole cents)."
+                    "pattern": "^0\\.(0[1-9]|[1-9]\\d|0\\d[1-9]|9\\d[1-9])$",
+                    "description": "Contract price in dollars: \"0.01\"–\"0.99\" (whole cents), or \"0.001\"–\"0.099\" / \"0.901\"–\"0.999\" on a tapered_deci_cent market (see price_ranges)."
                   },
                   "up_price": {
                     "type": "string",
-                    "pattern": "^0\\.(0[1-9]|[1-9]\\d)$",
-                    "description": "Contract price in dollars, \"0.01\"–\"0.99\" (v1: whole cents)."
+                    "pattern": "^0\\.(0[1-9]|[1-9]\\d|0\\d[1-9]|9\\d[1-9])$",
+                    "description": "Contract price in dollars: \"0.01\"–\"0.99\" (whole cents), or \"0.001\"–\"0.099\" / \"0.901\"–\"0.999\" on a tapered_deci_cent market (see price_ranges)."
                   },
                   "down_price": {
                     "type": "string",
-                    "pattern": "^0\\.(0[1-9]|[1-9]\\d)$",
-                    "description": "Contract price in dollars, \"0.01\"–\"0.99\" (v1: whole cents)."
+                    "pattern": "^0\\.(0[1-9]|[1-9]\\d|0\\d[1-9]|9\\d[1-9])$",
+                    "description": "Contract price in dollars: \"0.01\"–\"0.99\" (whole cents), or \"0.001\"–\"0.099\" / \"0.901\"–\"0.999\" on a tapered_deci_cent market (see price_ranges)."
                   },
                   "count": {
                     "type": "string",
@@ -1054,8 +1931,8 @@
                   },
                   "price": {
                     "type": "string",
-                    "pattern": "^0\\.(0[1-9]|[1-9]\\d)$",
-                    "description": "Contract price in dollars, \"0.01\"–\"0.99\" (v1: whole cents)."
+                    "pattern": "^0\\.(0[1-9]|[1-9]\\d|0\\d[1-9]|9\\d[1-9])$",
+                    "description": "Contract price in dollars: \"0.01\"–\"0.99\" (whole cents), or \"0.001\"–\"0.099\" / \"0.901\"–\"0.999\" on a tapered_deci_cent market (see price_ranges)."
                   },
                   "time_in_force": {
                     "type": "string",
@@ -1102,6 +1979,21 @@
                     "minimum": 0,
                     "maximum": 9007199254740991,
                     "description": "Epoch milliseconds (UTC)."
+                  },
+                  "event": {
+                    "type": "string",
+                    "enum": [
+                      "accepted",
+                      "partially_filled",
+                      "filled",
+                      "canceled"
+                    ]
+                  },
+                  "update_ts_ms": {
+                    "description": "Server time (ms) of the book commit this update was read from (else when the server saw it). Never earlier than the change; when several commits land between two reads, an order changed by an earlier one carries the later commit's time, so it can run up to one read late.",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
                   }
                 },
                 "required": [
@@ -1190,8 +2082,8 @@
                   },
                   "price": {
                     "type": "string",
-                    "pattern": "^0\\.(0[1-9]|[1-9]\\d)$",
-                    "description": "Contract price in dollars, \"0.01\"–\"0.99\" (v1: whole cents)."
+                    "pattern": "^0\\.(0[1-9]|[1-9]\\d|0\\d[1-9]|9\\d[1-9])$",
+                    "description": "Contract price in dollars: \"0.01\"–\"0.99\" (whole cents), or \"0.001\"–\"0.099\" / \"0.901\"–\"0.999\" on a tapered_deci_cent market (see price_ranges)."
                   },
                   "count": {
                     "type": "string",
@@ -1199,7 +2091,8 @@
                     "description": "Contracts, as a string — up to two decimals (centi-contracts)."
                   },
                   "fee": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Actual USD fee charged, zero for a maker. For takers, the order's stored coefficient and season discount apply; GET /portfolio/fee_tier reports the current effective rate, which may differ from an older order."
                   },
                   "is_taker": {
                     "type": "boolean"
@@ -1338,6 +2231,18 @@
         },
         {
           "$ref": "#/channels/trade-api-ws/messages/cancel_on_disconnect"
+        },
+        {
+          "$ref": "#/channels/trade-api-ws/messages/create_order"
+        },
+        {
+          "$ref": "#/channels/trade-api-ws/messages/cancel_order"
+        },
+        {
+          "$ref": "#/channels/trade-api-ws/messages/batch_create_orders"
+        },
+        {
+          "$ref": "#/channels/trade-api-ws/messages/batch_cancel_orders"
         }
       ]
     },
@@ -1355,6 +2260,12 @@
         },
         {
           "$ref": "#/channels/trade-api-ws/messages/ok"
+        },
+        {
+          "$ref": "#/channels/trade-api-ws/messages/order"
+        },
+        {
+          "$ref": "#/channels/trade-api-ws/messages/batch_orders"
         },
         {
           "$ref": "#/channels/trade-api-ws/messages/error"

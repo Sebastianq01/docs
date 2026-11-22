@@ -121,7 +121,8 @@
               "api-reference/cancel-orders",
               "api-reference/get-positions",
               "api-reference/get-fills",
-              "api-reference/get-balance"
+              "api-reference/get-balance",
+              "api-reference/get-fee-tier"
             ]
           },
           {
