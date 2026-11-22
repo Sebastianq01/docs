@@ -16,10 +16,10 @@ A Boost has two parts:
 - **The bet**: the regular Up / Down contract, bought on the order book at the current ask. It buys as many contracts as your stake in dollars, so a right call pays your whole stake back. It pays the normal taker fee, like any order on the book.
 - **The ride**: one **option leg** bought with the rest of the stake. It's a call spread on Up and a put spread on Down, struck at the live price when the order is placed. It pays a fixed amount for every $1 the asset closes past that strike, up to a ceiling set so the whole Boost pays at most **100× your stake**.
 
-For example, a $10 Boost on Up when Up's ask is 65¢:
+For example, a $10 Boost on Up when Up's ask is 65¢, at the [Tier 1 taker rate](/api/fees-and-rebates#the-taker-fee) with no season discount after the November 22, 2026 at 8:30 PM ET fee change:
 
-- The bet buys 10 contracts on the order book at 65¢, plus the taker fee of about 1.6¢ each. That's $6.66 in all, and any close at or above the price to beat pays $10.
-- The other $3.34 buys the ride, which adds to the payout for every $1 the asset closes above its strike.
+- The regular-contract part buys 10 contracts on the order book at 65¢, plus a taker fee of 10 × 0.095 × 0.65 × 0.35 = $0.216125. That's about $6.72 in all, and any close at or above the price to beat pays $10.
+- The other $3.283875 (about $3.28) buys the ride, which adds to the payout for every $1 the asset closes above its strike.
 
 The option leg has no order book. It's quoted on request (RFQ) when you place the order, priced for your order at that moment from the live price and the move expected in the time left.
 

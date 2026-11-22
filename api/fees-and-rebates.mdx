@@ -23,18 +23,46 @@ An order that crosses the book when you place it is a taker for the part that fi
 
 ## The taker fee
 
-Each series publishes its fee in [`fee_schedule`](/api-reference/list-series), as a formula in `p`, the fill price in dollars:
+<Note>
+The volume-tiered taker fee takes effect on **November 22, 2026 at 8:30 PM ET** (November 23 at 01:30 UTC).
+</Note>
 
-```json
-"fee_schedule": {
-  "maker": "0",
-  "taker": "min(0.07 * p * (1 - p), 0.0175) per contract"
-}
+Your taker fee depends on your volume tier and season discount:
+
+```text
+fee = contracts × effective_rate × p × (1 − p)
 ```
 
-The fee is largest at 50¢ (1.75¢ per contract) and falls toward zero near 1¢ and 99¢. It is charged in dollars and rounded to the millionth of a dollar. A taker order's fees show in its `fees_paid`. On your maker fills it stays `"0"`.
+Here, `p` is the fill price in dollars. Your base rate uses your trailing taker notional over the **30 completed US Eastern calendar days**, excluding today. Taker notional is contracts × price paid. Only live taker fills count toward this volume.
 
-Read `fee_schedule` from the API rather than hard-coding it. It can change.
+| Tier | Trailing taker notional | Base rate | Basis points |
+|---|---|---|---|
+| 1 | Under $10,000 | `0.095` | 950 |
+| 2 | $10,000 to under $50,000 | `0.085` | 850 |
+| 3 | $50,000 to under $250,000 | `0.075` | 750 |
+| 4 | $250,000 or more | `0.0695` | 695 |
+
+Tiers recompute daily after midnight ET, including across daylight-saving changes. Today's fills enter the calculation after today closes in ET. An order keeps the rate it was submitted with, even if your rate changes before it fills.
+
+The maximum undiscounted fee is **2.375¢ per contract**, at 50¢ in Tier 1. The fee falls toward zero as the price approaches $0 or $1. It is charged in dollars and rounded to the millionth of a dollar. A taker order's actual fees show in `fees_paid`. Makers pay zero, and nothing is charged at settlement.
+
+### New accounts
+
+Day 1 is the ET calendar date of your first live fill, whether you were the maker or taker. These are calendar days, not rolling 24-hour periods.
+
+- **Days 1–7:** your base rate is `0.0695` (Tier 4).
+- **Days 8–30:** use the tier for `max(trailing30, first7 × 30/7)`, where `first7` is your taker notional over your first seven ET calendar days and `trailing30` is your taker notional over the 30 completed ET calendar days.
+- **Day 31 onward:** use your trailing 30 completed ET days of taker notional alone.
+
+### Season discounts
+
+Your season discount applies on top of your base rate, up to **25% off**. The effective coefficient is floored to whole basis points after the discount. For example, a 25% discount on 695 bps gives `floor(695 × 0.75) = 521` bps, an effective rate of `0.0521`.
+
+### Read your effective rate
+
+Call authenticated [`GET /trade-api/v1/portfolio/fee_tier`](/api-reference/get-fee-tier) for your `tier`, effective `taker_fee_rate` after the season discount, `trailing_30d_taker_volume`, `next_tier_threshold`, and `onboarding_ends_at`. On the website, use the fee-tier card on your **Portfolio** page.
+
+Each series also publishes the current schedule in [`fee_schedule`](/api-reference/list-series). Read it and your account's effective rate from the API rather than hard-coding a coefficient. A null `tier` means the flat fallback is in use, rather than the volume-tiered schedule.
 
 ## Rebate rates
 
@@ -49,7 +77,9 @@ Your share of the taker fee depends on the market's category (the series' `categ
 
 Markets in other categories earn no rebate for now. Each fill earns the rate in force when it filled. We give at least 7 days' notice before a rate goes down.
 
-**Example.** A taker buys 100 contracts from your resting order at 50¢ on a crypto market. The taker pays 100 × 0.07 × 0.50 × 0.50 = **$1.75** in fees. You pay nothing and earn 30% of it: **$0.525**.
+Rebates are a share of the taker fee **actually paid**, after the taker's volume tier and season discount.
+
+**Example.** A taker past onboarding with under $10,000 of trailing taker notional and no season discount buys 100 contracts from your resting order at 50¢ on a crypto market. The taker pays 100 × 0.095 × 0.50 × 0.50 = **$2.375** in fees. You pay nothing and earn 30% of it: **$0.7125**.
 
 ## Which fills earn
 

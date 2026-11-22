@@ -1385,6 +1385,80 @@
         }
       }
     },
+    "/portfolio/fee_tier": {
+      "get": {
+        "operationId": "getFeeTier",
+        "summary": "Get your taker fee tier",
+        "description": "Effective rate includes your season discount. Volume is USD over completed ET days; a null tier means the flat fallback is in use.",
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Your effective taker fee tier.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeeTierResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request (code BAD_REQUEST).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No API key, or one that isn't valid (code UNAUTHORIZED).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key lacks the permission, or the account can't trade yet (code FORBIDDEN).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited (code RATE_LIMITED); wait `Retry-After` seconds.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The book could not be read (code EXCHANGE_UNAVAILABLE); retry.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/portfolio/balance": {
       "get": {
         "operationId": "getBalance",
@@ -1463,7 +1537,7 @@
       "post": {
         "operationId": "createBoost",
         "summary": "Create Boost",
-        "description": "Place a Boost (`trade` key, live keys only) on the window open now: your stake buys the bet (the regular contract, bought on the order book at the current ask with the taker fee) plus a ride (an option leg struck at the live price) that pays more the further the price runs your way — the website's Boost. Priced by the server exactly as on the website, with the same stake limit (1 to 100 dollars per order) and the same cutoff (none in a window's last minute). The stake is paid from your cash when the order is placed and counts in your key's daily limit. `client_order_id` is required and idempotent: resending the same id with the same body returns the order already placed. After a timeout or `503 EXCHANGE_UNAVAILABLE`, look it up by `client_order_id` (GET /portfolio/boosts) before sending it again.",
+        "description": "Place a Boost (`trade` key, live keys only) on the window open now: your stake buys the bet (the regular contract, bought on the order book at the current ask with your effective taker fee, including volume tier when enabled and season discount) plus a ride (an option leg struck at the live price) that pays more the further the price runs your way — the website's Boost. During Boost Hour the actual bet fee is refunded into the ride, not waived at execution. Priced by the server exactly as on the website, with the same stake limit (1 to 100 dollars per order) and the same cutoff (none in a window's last minute). The stake is paid from your cash when the order is placed and counts in your key's daily limit. `client_order_id` is required and idempotent: resending the same id with the same body returns the order already placed. After a timeout or `503 EXCHANGE_UNAVAILABLE`, look it up by `client_order_id` (GET /portfolio/boosts) before sending it again.",
         "security": [
           {
             "apiKey": []
@@ -2065,7 +2139,7 @@
                     },
                     "taker": {
                       "type": "string",
-                      "description": "The fee on a fill your order takes from the book, per contract, as a formula in p (the fill price in dollars)."
+                      "description": "Switch-aware schedule: when enabled, rate * p * (1-p) per contract with 950/850/750/695 bps at $0/$10k/$50k/$250k of 30 completed ET-day taker notional. First 7 ET days: 695 bps; days 8-30 use max(trailing30, first7 * 30/7). Season discount applies on top, capped at 25% and floored to whole bps. Otherwise the legacy 700-bps formula. GET /portfolio/fee_tier gives your effective rate."
                     }
                   },
                   "required": [
@@ -2186,7 +2260,7 @@
                   },
                   "taker": {
                     "type": "string",
-                    "description": "The fee on a fill your order takes from the book, per contract, as a formula in p (the fill price in dollars)."
+                    "description": "Switch-aware schedule: when enabled, rate * p * (1-p) per contract with 950/850/750/695 bps at $0/$10k/$50k/$250k of 30 completed ET-day taker notional. First 7 ET days: 695 bps; days 8-30 use max(trailing30, first7 * 30/7). Season discount applies on top, capped at 25% and floored to whole bps. Otherwise the legacy 700-bps formula. GET /portfolio/fee_tier gives your effective rate."
                   }
                 },
                 "required": [
@@ -2968,6 +3042,48 @@
             "items": {
               "type": "string"
             }
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "BAD_REQUEST",
+                  "NOT_FOUND",
+                  "SERIES_NOT_FOUND",
+                  "MARKET_NOT_FOUND",
+                  "METHOD_NOT_ALLOWED",
+                  "RATE_LIMITED",
+                  "UNAUTHORIZED",
+                  "FORBIDDEN",
+                  "ORDER_NOT_FOUND",
+                  "IDEMPOTENCY_CONFLICT",
+                  "ACCOUNT_BUSY",
+                  "MARKET_NOT_OPEN",
+                  "INSUFFICIENT_BALANCE",
+                  "LIMIT_EXCEEDED",
+                  "POST_ONLY_CROSS",
+                  "SELF_TRADE",
+                  "TRADING_PAUSED",
+                  "ORDER_REJECTED",
+                  "BOOST_UNAVAILABLE",
+                  "INTERNAL_ERROR",
+                  "EXCHANGE_UNAVAILABLE"
+                ]
+              },
+              "message": {
+                "type": "string"
+              },
+              "details": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ],
+            "additionalProperties": false
           }
         },
         "required": [
@@ -3439,6 +3555,9 @@
               "per_market_limit": {
                 "type": "string"
               },
+              "trade_credit": {
+                "type": "string"
+              },
               "server_time_ms": {
                 "type": "integer",
                 "minimum": 0,
@@ -3455,6 +3574,64 @@
         },
         "required": [
           "balance"
+        ],
+        "additionalProperties": false
+      },
+      "FeeTierResponse": {
+        "type": "object",
+        "properties": {
+          "tier": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Base volume tier; null while the flat fallback is in use."
+          },
+          "taker_fee_rate": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Effective decimal coefficient after season discount, floored to whole bps. Legacy base is 0.07 while tiers are disabled."
+          },
+          "trailing_30d_taker_volume": {
+            "type": "number",
+            "minimum": 0,
+            "description": "USD of taker notional over 30 completed ET days."
+          },
+          "next_tier_threshold": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "USD threshold for the next tier; null at Tier 4 or while disabled."
+          },
+          "onboarding_ends_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "ISO instant ending the 30 ET-calendar-day onboarding window; day 1 is the first LIVE maker or taker fill's ET date. Null before a first fill."
+          }
+        },
+        "required": [
+          "tier",
+          "taker_fee_rate",
+          "trailing_30d_taker_volume",
+          "next_tier_threshold",
+          "onboarding_ends_at"
         ],
         "additionalProperties": false
       },
@@ -3493,7 +3670,8 @@
                 "type": "string",
                 "enum": [
                   "live",
-                  "shadow"
+                  "shadow",
+                  "practice"
                 ]
               },
               "status": {
@@ -3639,7 +3817,8 @@
                   "type": "string",
                   "enum": [
                     "live",
-                    "shadow"
+                    "shadow",
+                    "practice"
                   ]
                 },
                 "status": {
