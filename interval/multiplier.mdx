@@ -38,13 +38,13 @@ The strike is the price you bought at, not the price to beat, so what you get de
 | Past your strike | Your stake back **plus** the option leg's payout for every $1 past the strike |
 | At or past the ceiling | The most it can pay |
 
-**Bought while your side was losing.** Your strike sits on the losing side of the price to beat. The option leg gains from the first move your way, but the order makes a profit only once the price closes past the price to beat.
+**Bought while your side was losing.** If the price closes far enough past where you bought, the option leg alone can pay more than your stake, even if your side still loses.
 
 | Where the price closes | What the order pays |
 |------------------------|---------------------|
 | Short of your strike | $0. You lose your stake. |
-| Between your strike and the price to beat | Only the option leg pays: part of your stake back |
-| At or past the price to beat | Your stake back **plus** the option leg's payout for the whole distance from your strike |
+| Between your strike and the price to beat | Only the option leg pays: less than, equal to, or more than your stake |
+| On your side of the price to beat | Your stake back **plus** the option leg's payout |
 | At or past the ceiling | The most it can pay |
 
 - An Up order wins on a close at or above the price to beat. A Down order loses on an unchanged close, because an unchanged close settles Up. See the [tie rule](/interval/how-windows-work#up-and-down).
