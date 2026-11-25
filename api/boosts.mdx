@@ -165,6 +165,36 @@ The ride is sold back for its current `sell_proceeds`, paid to your cash, and th
 
 Open orders settle automatically on the window's result: `settling`, then `settled`, with the ride's payout sent to your cash. The bet settles like any position in that market. If the result still can't be read 6 hours after the close, the ride's stake is refunded and the order reads `void`.
 
+## Market-wide Boost trades feed
+
+Approved API keys with the **Read** permission can query delayed, bucketed market-wide Boost flow for a single market window with [`GET /markets/{ticker}/boost_trades`](/api-reference/get-boost-trades). Keys that haven't been approved for this feed receive `403 FORBIDDEN`.
+
+```bash
+curl "https://api.updown.fast/trade-api/v1/markets/nvda-15m-261124-1600-1615/boost_trades?bucket_seconds=60&limit=100" \
+  -H "Authorization: Bearer $UPDOWN_API_KEY"
+```
+
+```json 200 OK
+{
+  "market_ticker": "nvda-15m-261124-1600-1615",
+  "delay_ms": 60000,
+  "bucket_ms": 60000,
+  "buckets": [
+    {
+      "bucket_start_ts_ms": 1795536180000,
+      "bucket_end_ts_ms": 1795536240000,
+      "outcome": "up",
+      "trade_count": 3,
+      "volume_bucket_usd": "50-100"
+    }
+  ],
+  "server_time_ms": 1795536320000
+}
+```
+
+- **Delay and bucketing.** Buckets are aligned to UTC `60`-second (default) or `300`-second boundaries and returned newest first (`limit` 1 to 200, default 100). Only completed buckets at least `delay_ms` (60 seconds) old are included.
+- **Redacted fields.** Each bucket reports only `outcome` (`up` or `down`), `trade_count`, and a coarse `volume_bucket_usd` band (`0-10`, `10-25`, `25-50`, `50-100`, `100-250`, `250-500`, `500+`) computed from total Boost order spend (`stake` + `bet.cost`). No account IDs, order IDs, exact stakes, strikes, or payouts are returned.
+
 ## Limits
 
 The tightest of these wins:

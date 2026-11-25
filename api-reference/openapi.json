@@ -513,6 +513,115 @@
         }
       }
     },
+    "/markets/{ticker}/boost_trades": {
+      "get": {
+        "operationId": "getBoostTrades",
+        "summary": "Get Boost trades",
+        "description": "Delayed, bucketed market-wide Boost trades for one market window, newest first. Requires an approved API key with the `read` scope. Returns only completed UTC buckets after the publication delay (`delay_ms`), with side (`outcome`), `trade_count`, and coarse `volume_bucket_usd` — no account IDs, order IDs, exact stakes, strikes, payouts, or treasury capacity.",
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "ticker",
+            "in": "path",
+            "required": true,
+            "description": "Market ticker, e.g. nvda-15m-261124-1600-1615",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "bucket_seconds",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "default": 60,
+              "description": "Bucket width in seconds: 60 (default) or 300.",
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "description": "Maximum number of completed buckets to return, newest first (1–200, default 100).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delayed, bucketed Boost trades.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BoostTradesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request (code BAD_REQUEST).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No API key, or one that isn't valid (code UNAUTHORIZED).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key lacks the permission, or the account can't trade yet (code FORBIDDEN).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited (code RATE_LIMITED); wait `Retry-After` seconds.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The book could not be read (code EXCHANGE_UNAVAILABLE); retry.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/account": {
       "get": {
         "operationId": "getAccount",
@@ -2343,6 +2452,11 @@
                     "down"
                   ]
                 },
+                "void": {
+                  "type": "boolean",
+                  "const": true,
+                  "description": "Present only for a voided market, which has no result or settlement_price."
+                },
                 "settlement_price": {
                   "type": "string",
                   "pattern": "^\\d+(\\.\\d+)?$",
@@ -2484,6 +2598,11 @@
                   "up",
                   "down"
                 ]
+              },
+              "void": {
+                "type": "boolean",
+                "const": true,
+                "description": "Present only for a voided market, which has no result or settlement_price."
               },
               "settlement_price": {
                 "type": "string",
@@ -3925,6 +4044,94 @@
         },
         "required": [
           "boosts"
+        ],
+        "additionalProperties": false
+      },
+      "BoostTradesResponse": {
+        "type": "object",
+        "properties": {
+          "market_ticker": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{0,63}-\\d{6}-\\d{4}-\\d{4}(d\\d{1,2})?$",
+            "description": "Market ticker (one window of a series), e.g. \"btc-15m-261002-1400-1415\". Opaque."
+          },
+          "delay_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "bucket_ms": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "buckets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "bucket_start_ts_ms": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991,
+                  "description": "Epoch milliseconds (UTC)."
+                },
+                "bucket_end_ts_ms": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991,
+                  "description": "Epoch milliseconds (UTC)."
+                },
+                "outcome": {
+                  "type": "string",
+                  "enum": [
+                    "up",
+                    "down"
+                  ]
+                },
+                "trade_count": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991,
+                  "description": "Number of Boost orders in this bucket on this side."
+                },
+                "volume_bucket_usd": {
+                  "type": "string",
+                  "enum": [
+                    "0-10",
+                    "10-25",
+                    "25-50",
+                    "50-100",
+                    "100-250",
+                    "250-500",
+                    "500+"
+                  ],
+                  "description": "Coarse USD band for total Boost stake (bet + ride) in this bucket."
+                }
+              },
+              "required": [
+                "bucket_start_ts_ms",
+                "bucket_end_ts_ms",
+                "outcome",
+                "trade_count",
+                "volume_bucket_usd"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "server_time_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "Epoch milliseconds (UTC)."
+          }
+        },
+        "required": [
+          "market_ticker",
+          "delay_ms",
+          "bucket_ms",
+          "buckets",
+          "server_time_ms"
         ],
         "additionalProperties": false
       },
