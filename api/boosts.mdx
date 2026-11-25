@@ -3,7 +3,7 @@ title: "Boost orders"
 description: "Place, track and sell Boost orders with a trade key: one order that pays more the further the price closes your way."
 ---
 
-A Boost order is one order on the window that's open now. It pays more the further the price closes your way. It's the same order the website and the app place: the same server prices it, and the same limits and settlement apply. Placing and selling need an API key with the **Trade** permission; reading needs **Read**. See [Authentication](/api/authentication).
+A Boost order is one order on the window that's open now. It pays more the further the price closes your way. It's the same order the website and the app place: the same server prices it, and the same limits and settlement apply. Placing and selling need an API key with the **Trade** permission; reading your orders needs **Read** (the public market-wide Boost trades feed below requires no API key). See [Authentication](/api/authentication).
 
 <Warning>
 Boost orders are **real money**. The stake is paid from your account's cash the moment the order is placed. Orders placed through the API never use trade credit.
@@ -164,6 +164,45 @@ The ride is sold back for its current `sell_proceeds`, paid to your cash, and th
 ## At the close
 
 Open orders settle automatically on the window's result: `settling`, then `settled`, with the ride's payout sent to your cash. The bet settles like any position in that market. If the result still can't be read 6 hours after the close, the ride's stake is refunded and the order reads `void`.
+
+## Market-wide Boost trades feed
+
+Anyone can query the public market-wide Boost trade tape for a single market window with [`GET /markets/{ticker}/boost_trades`](/api-reference/get-boost-trades). No API key is required.
+
+```bash
+curl "https://api.updown.fast/trade-api/v1/markets/nvda-15m-261124-1600-1615/boost_trades?limit=100"
+```
+
+```json 200 OK
+{
+  "market_ticker": "nvda-15m-261124-1600-1615",
+  "trades": [
+    {
+      "trade_id": "nvda-15m/f500",
+      "market_ticker": "nvda-15m-261124-1600-1615",
+      "taker_outcome": "up",
+      "taker_action": "buy",
+      "price": "0.47",
+      "up_price": "0.47",
+      "down_price": "0.53",
+      "count": "11.00",
+      "ts_ms": 1795536192000,
+      "seconds_into_window": 192,
+      "open_price": "185.00",
+      "spot_vs_open_pct": 0.125,
+      "settled_outcome": "up",
+      "close_price": "186.1",
+      "boost_hour": true
+    }
+  ],
+  "cursor": "500",
+  "server_time_ms": 1795537000000
+}
+```
+
+- **Matches public `/trades` for the bet fill.** Each entry carries the exact public order-book fill fields (`trade_id`, `market_ticker`, `taker_outcome`, `taker_action`, `price`, `up_price`, `down_price`, `count`, `ts_ms`), returned newest first with `limit` (1 to 200, default 100) and `cursor` pagination.
+- **Entry context and Boost Hour.** Each entry adds `seconds_into_window` (elapsed seconds since window open), `boost_hour` (`true` when placed during a Boost Hour promotion), and when available `open_price` (the window's price to beat) and `spot_vs_open_pct` (signed `%` difference between the underlying price at entry and `open_price`).
+- **Settlement and privacy.** `settled_outcome` and `close_price` report the window's book-settled outcome once closed (absent while open or void). No account IDs, order IDs, leverage sizes, strikes, payouts, or treasury capacity are returned.
 
 ## Limits
 
