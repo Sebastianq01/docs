@@ -517,12 +517,8 @@
       "get": {
         "operationId": "getBoostTrades",
         "summary": "Get Boost trades",
-        "description": "Delayed market-wide Boost trade tape for one market window, newest first. Requires an approved API key with the `read` scope. Matches `/markets/{ticker}/trades` for the bet fill (`trade_id`, `taker_outcome`, `taker_action`, `price`, `up_price`, `down_price`, `count`, `ts_ms`) after the publication delay (`delay_ms`), and adds entry context (`seconds_into_window`, `open_price`, `spot_vs_open_pct`, `boost_hour`) and settlement fields (`settled_outcome`, `close_price`) — no account IDs, order IDs, leverage sizes, strikes, payouts, or treasury capacity.",
-        "security": [
-          {
-            "apiKey": []
-          }
-        ],
+        "description": "Public market-wide Boost trade tape for one market window, newest first. Matches `/markets/{ticker}/trades` for the bet fill (`trade_id`, `taker_outcome`, `taker_action`, `price`, `up_price`, `down_price`, `count`, `ts_ms`), and adds entry context (`seconds_into_window`, `open_price`, `spot_vs_open_pct`, `boost_hour`) and settlement fields (`settled_outcome`, `close_price`) — no account IDs, order IDs, leverage sizes, strikes, payouts, or treasury capacity.",
+        "security": [],
         "parameters": [
           {
             "name": "ticker",
@@ -539,7 +535,7 @@
             "required": false,
             "schema": {
               "default": 100,
-              "description": "Maximum number of delayed Boost trades to return, newest first (1–200, default 100).",
+              "description": "Maximum number of Boost trades to return, newest first (1–200, default 100).",
               "type": "integer",
               "minimum": 1,
               "maximum": 200
@@ -558,7 +554,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Delayed Boost trades.",
+            "description": "Boost trades.",
             "content": {
               "application/json": {
                 "schema": {
@@ -577,18 +573,8 @@
               }
             }
           },
-          "401": {
-            "description": "No API key, or one that isn't valid (code UNAUTHORIZED).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "The key lacks the permission, or the account can't trade yet (code FORBIDDEN).",
+          "404": {
+            "description": "Boost trades feed is not enabled on this server (code NOT_FOUND).",
             "content": {
               "application/json": {
                 "schema": {
@@ -4053,11 +4039,6 @@
             "pattern": "^[a-z0-9][a-z0-9-]{0,63}-\\d{6}-\\d{4}-\\d{4}(d\\d{1,2})?$",
             "description": "Market ticker (one window of a series), e.g. \"btc-15m-261002-1400-1415\". Opaque."
           },
-          "delay_ms": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
-          },
           "trades": {
             "type": "array",
             "items": {
@@ -4171,7 +4152,6 @@
         },
         "required": [
           "market_ticker",
-          "delay_ms",
           "trades",
           "server_time_ms"
         ],
