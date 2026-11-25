@@ -517,7 +517,7 @@
       "get": {
         "operationId": "getBoostTrades",
         "summary": "Get Boost trades",
-        "description": "Delayed market-wide Boost trade tape for one market window, newest first. Requires an approved API key with the `read` scope. Matches `/markets/{ticker}/trades` for the bet fill (`trade_id`, `taker_outcome`, `taker_action`, `price`, `up_price`, `down_price`, `count`, `ts_ms`) after the publication delay (`delay_ms`), and adds entry context (`seconds_into_window`, `open_price`, `spot_vs_open_pct`, `boost_hour`), exact leverage leg economics (`leverage_usd`, `leverage_payout_usd`), and settlement fields (`settled_outcome`, `close_price`) — no account IDs, order IDs, strikes, or treasury capacity.",
+        "description": "Delayed market-wide Boost trade tape for one market window, newest first. Requires an approved API key with the `read` scope. Matches `/markets/{ticker}/trades` for the bet fill (`trade_id`, `taker_outcome`, `taker_action`, `price`, `up_price`, `down_price`, `count`, `ts_ms`) after the publication delay (`delay_ms`), and adds entry context (`seconds_into_window`, `open_price`, `spot_vs_open_pct`, `boost_hour`) and settlement fields (`settled_outcome`, `close_price`) — no account IDs, order IDs, leverage sizes, strikes, payouts, or treasury capacity.",
         "security": [
           {
             "apiKey": []
@@ -4125,16 +4125,6 @@
                   "description": "Signed percentage difference between underlying spot at entry and the window's price to beat: ((spot - open_price) / open_price) * 100.",
                   "type": "number"
                 },
-                "leverage_usd": {
-                  "type": "string",
-                  "pattern": "^(0|[1-9]\\d*)(\\.\\d{1,2})?$",
-                  "description": "Exact USDC allocated to the Boost order's leverage (option) leg."
-                },
-                "leverage_payout_usd": {
-                  "description": "Exact gross USDC payout of the leverage (option) leg once settled, sold, or voided; absent while open.",
-                  "type": "string",
-                  "pattern": "^(0|[1-9]\\d*)(\\.\\d{1,2})?$"
-                },
                 "settled_outcome": {
                   "description": "Settled window outcome (up or down); absent while the window is still open or void.",
                   "type": "string",
@@ -4164,7 +4154,6 @@
                 "count",
                 "ts_ms",
                 "seconds_into_window",
-                "leverage_usd",
                 "boost_hour"
               ],
               "additionalProperties": false

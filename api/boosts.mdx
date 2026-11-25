@@ -192,8 +192,6 @@ curl "https://api.updown.fast/trade-api/v1/markets/nvda-15m-261124-1600-1615/boo
       "seconds_into_window": 192,
       "open_price": "185.00",
       "spot_vs_open_pct": 0.125,
-      "leverage_usd": "17.24",
-      "leverage_payout_usd": "42.50",
       "settled_outcome": "up",
       "close_price": "186.1",
       "boost_hour": true
@@ -206,7 +204,7 @@ curl "https://api.updown.fast/trade-api/v1/markets/nvda-15m-261124-1600-1615/boo
 
 - **Matches public `/trades` for the bet fill.** Each entry carries the exact public order-book fill fields (`trade_id`, `market_ticker`, `taker_outcome`, `taker_action`, `price`, `up_price`, `down_price`, `count`, `ts_ms`), returned newest first with `limit` (1 to 200, default 100) and `cursor` pagination. Only fills at least `delay_ms` (60 seconds) old are included.
 - **Entry context and Boost Hour.** Each entry adds `seconds_into_window` (elapsed seconds since window open), `open_price` (the window's price to beat), `spot_vs_open_pct` (signed `%` difference between underlying spot at entry and `open_price`), and `boost_hour` (`true` when placed during a Boost Hour promotion).
-- **Exact leverage leg and settlement.** `leverage_usd` is the exact USDC allocated to the leverage (option) leg, `leverage_payout_usd` is its exact gross payout once settled, sold, or voided (absent while open), and `settled_outcome` and `close_price` report the window's settlement once closed. No account IDs, order IDs, strikes, or treasury capacity are returned.
+- **Settlement and privacy.** `settled_outcome` and `close_price` report the window's settlement once closed (absent while open). No account IDs, order IDs, leverage sizes, strikes, payouts, or treasury capacity are returned.
 
 ## Limits
 
