@@ -4103,7 +4103,7 @@
                   "pattern": "^\\d+(\\.\\d+)?$"
                 },
                 "spot_vs_open_pct": {
-                  "description": "Signed percentage difference between underlying spot at entry and the window's price to beat: ((spot - open_price) / open_price) * 100.",
+                  "description": "Signed percentage difference between the underlying price at entry and the window's price to beat: ((entry_price - open_price) / open_price) * 100.",
                   "type": "number"
                 },
                 "settled_outcome": {
@@ -4115,7 +4115,7 @@
                   ]
                 },
                 "close_price": {
-                  "description": "Window settlement close price (or early-sale close price); absent while open.",
+                  "description": "Window settlement close price; absent while the window is still open or void.",
                   "type": "string",
                   "pattern": "^\\d+(\\.\\d+)?$"
                 },
@@ -4141,7 +4141,8 @@
             }
           },
           "cursor": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^\\d+$"
           },
           "server_time_ms": {
             "type": "integer",
