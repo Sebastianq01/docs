@@ -539,6 +539,10 @@
             "required": false,
             "schema": {
               "default": 60,
+              "enum": [
+                60,
+                300
+              ],
               "description": "Bucket width in seconds: 60 (default) or 300.",
               "type": "integer",
               "minimum": -9007199254740991,
