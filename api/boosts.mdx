@@ -167,10 +167,10 @@ Open orders settle automatically on the window's result: `settling`, then `settl
 
 ## Market-wide Boost trades feed
 
-Approved API keys with the **Read** permission can query delayed, bucketed market-wide Boost flow for a single market window with [`GET /markets/{ticker}/boost_trades`](/api-reference/get-boost-trades). Keys that haven't been approved for this feed receive `403 FORBIDDEN`.
+Approved API keys with the **Read** permission can query the delayed market-wide Boost trade tape for a single market window with [`GET /markets/{ticker}/boost_trades`](/api-reference/get-boost-trades). Keys that haven't been approved for this feed receive `403 FORBIDDEN`.
 
 ```bash
-curl "https://api.updown.fast/trade-api/v1/markets/nvda-15m-261124-1600-1615/boost_trades?bucket_seconds=60&limit=100" \
+curl "https://api.updown.fast/trade-api/v1/markets/nvda-15m-261124-1600-1615/boost_trades?limit=100" \
   -H "Authorization: Bearer $UPDOWN_API_KEY"
 ```
 
@@ -178,22 +178,27 @@ curl "https://api.updown.fast/trade-api/v1/markets/nvda-15m-261124-1600-1615/boo
 {
   "market_ticker": "nvda-15m-261124-1600-1615",
   "delay_ms": 60000,
-  "bucket_ms": 60000,
-  "buckets": [
+  "trades": [
     {
-      "bucket_start_ts_ms": 1795536180000,
-      "bucket_end_ts_ms": 1795536240000,
-      "outcome": "up",
-      "trade_count": 3,
-      "volume_bucket_usd": "50-100"
+      "trade_id": "nvda-15m/f500",
+      "market_ticker": "nvda-15m-261124-1600-1615",
+      "taker_outcome": "up",
+      "taker_action": "buy",
+      "price": "0.47",
+      "up_price": "0.47",
+      "down_price": "0.53",
+      "count": "11.00",
+      "ts_ms": 1795536192000,
+      "leverage_bucket_usd": "10-25"
     }
   ],
+  "cursor": "500",
   "server_time_ms": 1795536320000
 }
 ```
 
-- **Delay and bucketing.** Buckets are aligned to UTC `60`-second (default) or `300`-second boundaries and returned newest first (`limit` 1 to 200, default 100). Only completed buckets at least `delay_ms` (60 seconds) old are included.
-- **Redacted fields.** Each bucket reports only `outcome` (`up` or `down`), `trade_count`, and a coarse `volume_bucket_usd` band (`0-10`, `10-25`, `25-50`, `50-100`, `100-250`, `250-500`, `500+`) computed from total Boost order spend (`stake` + `bet.cost`). No account IDs, order IDs, exact stakes, strikes, or payouts are returned.
+- **Matches public `/trades` for the bet fill.** Each entry carries the exact public order-book fill fields (`trade_id`, `market_ticker`, `taker_outcome`, `taker_action`, `price`, `up_price`, `down_price`, `count`, `ts_ms`), returned newest first with `limit` (1 to 200, default 100) and `cursor` pagination. Only fills at least `delay_ms` (60 seconds) old are included.
+- **Bucketed leverage leg.** `leverage_bucket_usd` reports a coarse USD band (`0-10`, `10-25`, `25-50`, `50-100`, `100-250`, `250-500`, `500+`) for the Boost order's leverage (option) leg allocation. No account IDs, order IDs, exact leverage sizes, strikes, or payouts are returned.
 
 ## Limits
 

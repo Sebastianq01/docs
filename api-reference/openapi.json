@@ -517,7 +517,7 @@
       "get": {
         "operationId": "getBoostTrades",
         "summary": "Get Boost trades",
-        "description": "Delayed, bucketed market-wide Boost trades for one market window, newest first. Requires an approved API key with the `read` scope. Returns only completed UTC buckets after the publication delay (`delay_ms`), with side (`outcome`), `trade_count`, and coarse `volume_bucket_usd` — no account IDs, order IDs, exact stakes, strikes, payouts, or treasury capacity.",
+        "description": "Delayed market-wide Boost trade tape for one market window, newest first. Requires an approved API key with the `read` scope. Matches `/markets/{ticker}/trades` for the bet fill (`trade_id`, `taker_outcome`, `taker_action`, `price`, `up_price`, `down_price`, `count`, `ts_ms`) after the publication delay (`delay_ms`), and adds a coarse `leverage_bucket_usd` band for the leverage leg — no account IDs, order IDs, exact leverage sizes, strikes, payouts, or treasury capacity.",
         "security": [
           {
             "apiKey": []
@@ -534,37 +534,31 @@
             }
           },
           {
-            "name": "bucket_seconds",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "default": 60,
-              "enum": [
-                60,
-                300
-              ],
-              "description": "Bucket width in seconds: 60 (default) or 300.",
-              "type": "integer",
-              "minimum": -9007199254740991,
-              "maximum": 9007199254740991
-            }
-          },
-          {
             "name": "limit",
             "in": "query",
             "required": false,
             "schema": {
               "default": 100,
-              "description": "Maximum number of completed buckets to return, newest first (1–200, default 100).",
+              "description": "Maximum number of delayed Boost trades to return, newest first (1–200, default 100).",
               "type": "integer",
               "minimum": 1,
               "maximum": 200
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "description": "Opaque cursor from the previous response to fetch the next (older) page.",
+              "type": "string",
+              "pattern": "^\\d+$"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Delayed, bucketed Boost trades.",
+            "description": "Delayed Boost trades.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4064,42 +4058,60 @@
             "minimum": 0,
             "maximum": 9007199254740991
           },
-          "bucket_ms": {
-            "type": "integer",
-            "exclusiveMinimum": 0,
-            "maximum": 9007199254740991
-          },
-          "buckets": {
+          "trades": {
             "type": "array",
             "items": {
               "type": "object",
               "properties": {
-                "bucket_start_ts_ms": {
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 9007199254740991,
-                  "description": "Epoch milliseconds (UTC)."
+                "trade_id": {
+                  "type": "string"
                 },
-                "bucket_end_ts_ms": {
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 9007199254740991,
-                  "description": "Epoch milliseconds (UTC)."
+                "market_ticker": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9-]{0,63}-\\d{6}-\\d{4}-\\d{4}(d\\d{1,2})?$",
+                  "description": "Market ticker (one window of a series), e.g. \"btc-15m-261002-1400-1415\". Opaque."
                 },
-                "outcome": {
+                "taker_outcome": {
                   "type": "string",
                   "enum": [
                     "up",
                     "down"
                   ]
                 },
-                "trade_count": {
-                  "type": "integer",
-                  "exclusiveMinimum": 0,
-                  "maximum": 9007199254740991,
-                  "description": "Number of Boost orders in this bucket on this side."
+                "taker_action": {
+                  "type": "string",
+                  "enum": [
+                    "buy",
+                    "sell"
+                  ]
                 },
-                "volume_bucket_usd": {
+                "price": {
+                  "type": "string",
+                  "pattern": "^0\\.(0[1-9]|[1-9]\\d|0\\d[1-9]|9\\d[1-9])$",
+                  "description": "Contract price in dollars: \"0.01\"–\"0.99\" (whole cents), or \"0.001\"–\"0.099\" / \"0.901\"–\"0.999\" on a tapered_deci_cent market (see price_ranges)."
+                },
+                "up_price": {
+                  "type": "string",
+                  "pattern": "^0\\.(0[1-9]|[1-9]\\d|0\\d[1-9]|9\\d[1-9])$",
+                  "description": "Contract price in dollars: \"0.01\"–\"0.99\" (whole cents), or \"0.001\"–\"0.099\" / \"0.901\"–\"0.999\" on a tapered_deci_cent market (see price_ranges)."
+                },
+                "down_price": {
+                  "type": "string",
+                  "pattern": "^0\\.(0[1-9]|[1-9]\\d|0\\d[1-9]|9\\d[1-9])$",
+                  "description": "Contract price in dollars: \"0.01\"–\"0.99\" (whole cents), or \"0.001\"–\"0.099\" / \"0.901\"–\"0.999\" on a tapered_deci_cent market (see price_ranges)."
+                },
+                "count": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9]\\d*)(\\.\\d{1,2})?$",
+                  "description": "Contracts, as a string — up to two decimals (centi-contracts)."
+                },
+                "ts_ms": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991,
+                  "description": "Epoch milliseconds (UTC)."
+                },
+                "leverage_bucket_usd": {
                   "type": "string",
                   "enum": [
                     "0-10",
@@ -4110,18 +4122,26 @@
                     "250-500",
                     "500+"
                   ],
-                  "description": "Coarse USD band for total Boost stake (bet + ride) in this bucket."
+                  "description": "Coarse USD band for the Boost order's leverage (option) leg allocation."
                 }
               },
               "required": [
-                "bucket_start_ts_ms",
-                "bucket_end_ts_ms",
-                "outcome",
-                "trade_count",
-                "volume_bucket_usd"
+                "trade_id",
+                "market_ticker",
+                "taker_outcome",
+                "taker_action",
+                "price",
+                "up_price",
+                "down_price",
+                "count",
+                "ts_ms",
+                "leverage_bucket_usd"
               ],
               "additionalProperties": false
             }
+          },
+          "cursor": {
+            "type": "string"
           },
           "server_time_ms": {
             "type": "integer",
@@ -4133,8 +4153,7 @@
         "required": [
           "market_ticker",
           "delay_ms",
-          "bucket_ms",
-          "buckets",
+          "trades",
           "server_time_ms"
         ],
         "additionalProperties": false
