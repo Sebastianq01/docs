@@ -32,7 +32,9 @@ Once placed, a Boost is two records on your account:
 | The bet | An ordinary position in that market, settled and sold like any other. | [`GET /portfolio/positions`](/api-reference/get-positions), and the Boost order's `bet` field |
 | The ride | The Boost order itself. | [`GET /portfolio/boosts`](/api-reference/list-boosts) |
 
-On a Boost order, `stake`, `max_payout`, `value`, `sell_proceeds` and `payout` are **the ride's**. The whole Boost costs `stake` + `bet.cost`. Its maximum payout is the order's `max_payout` plus $1 per contract in `bet.contracts`.
+On a Boost order, `stake`, `max_payout`, `value`, `sell_proceeds` and `payout` are **the ride's**. The `max_payout` field is the attainable leverage maximum; on Down it already excludes moves below $0. The leverage leg's `multiplier` is `max_payout` ÷ `stake`, not the whole Boost's multiple.
+
+When `bet` is present, the whole Boost costs `stake` + `bet.cost` and its maximum payout is `max_payout` plus $1 per contract in `bet.contracts`. Without `bet` (which failed orders can omit), the maximum payout is just `max_payout`.
 
 ### Partial fills and no sellers
 
