@@ -14,7 +14,7 @@ Boost orders are **real money**. The stake is paid from your account's cash the 
 A Boost has two parts:
 
 - **The bet**: the regular Up / Down contract, bought on the order book at the current ask. It buys as many contracts as your stake in dollars, so a right call pays your whole stake back. It pays the normal taker fee, like any order on the book.
-- **The ride**: one **option leg** bought with the rest of the stake. It's a call spread on Up and a put spread on Down, struck at the live price when the order is placed. It pays a fixed amount for every $1 the asset closes past that strike, up to a ceiling set so the whole Boost pays at most **100× your stake**.
+- **The ride**: one **option leg** bought with the rest of the stake. It's a call spread on Up and a put spread on Down, struck at the live price when the order is placed. It pays a fixed amount for every $1 the asset closes past that strike, up to a ceiling priced for that order. On Down, the leverage payout can't include any move below $0.
 
 For example, a $10 Boost on Up when Up's ask is 65¢, at the [Tier 1 taker rate](/api/fees-and-rebates#the-taker-fee) with no season discount after the November 22, 2026 at 8:30 PM ET fee change:
 
@@ -32,7 +32,11 @@ Once placed, a Boost is two records on your account:
 | The bet | An ordinary position in that market, settled and sold like any other. | [`GET /portfolio/positions`](/api-reference/get-positions), and the Boost order's `bet` field |
 | The ride | The Boost order itself. | [`GET /portfolio/boosts`](/api-reference/list-boosts) |
 
-On a Boost order, `stake`, `max_payout`, `value`, `sell_proceeds` and `payout` are **the ride's**. The whole Boost cost `stake` + `bet.cost`, and `multiplier` is `max_payout` ÷ `stake`.
+On a Boost order, `stake`, `max_payout`, `value`, `sell_proceeds` and `payout` are **the ride's**. For a filled Boost, the `max_payout` field is the attainable leverage maximum; on Down it already excludes moves below $0. The leverage leg's `multiplier` is `max_payout` ÷ `stake`, not the whole Boost's multiple.
+
+For a filled Boost with `bet`, the whole Boost costs `stake` + `bet.cost` and its maximum payout is `max_payout` plus $1 per contract in `bet.contracts`. For a filled Boost without `bet`, the maximum payout is just `max_payout`.
+
+A `failed` Boost order pays nothing: the leverage leg wasn't bought, and its stake was never taken. If a `bet` was bought, it stays on your account as a separate position.
 
 ### Partial fills and no sellers
 
@@ -89,7 +93,7 @@ curl -X POST https://api.updown.fast/trade-api/v1/portfolio/boosts \
 }
 ```
 
-Here the whole Boost cost $10.00 ($3.34 + $6.66) and pays up to $1,000 ($990 from the ride + $10 from the bet).
+In this example, the whole Boost cost $10.00 ($3.34 + $6.66) and pays up to $1,000 ($990 from the ride + $10 from the bet). Other orders can have a different maximum payout.
 
 | Field | |
 |---|---|
